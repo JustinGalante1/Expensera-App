@@ -18,15 +18,9 @@ const Stack = createStackNavigator();
 const screens = {
   Login:{
     screen: Login,
-    navigationOptions: {
-      headerTitle: () => <Header/>
-    }
   },
   Home: {
     screen: Home,
-    navigationOptions: {
-      headerTitle: () => <Header/>,
-    }
   }
 }
 

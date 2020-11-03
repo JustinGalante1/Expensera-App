@@ -18,5 +18,10 @@ export const HeaderStyle = StyleSheet.create(
             fontWeight: '500',
             alignSelf: 'center',
         },
+        drawerIcon:{
+            position: 'absolute',
+            left: 16,
+            color: 'white',
+        }
     }
 )
