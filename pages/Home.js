@@ -15,7 +15,7 @@ export class Home extends Component {
             <Card>
                 <CardItem>
                     <Text>
-                        Overview - MONTH NAME
+                        HOME SCREEN
                     </Text>
                 </CardItem>
             </Card>

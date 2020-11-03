@@ -9,18 +9,30 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Home from './pages/Home';
 import Login from './pages/Login';
 
+//our components
+import Drawer from './components/Drawer';
+import Header from './components/Header';
+
 const Stack = createStackNavigator();
+
+const screens = {
+  Login:{
+    screen: Login,
+    navigationOptions: {
+      headerTitle: () => <Header/>
+    }
+  },
+  Home: {
+    screen: Home,
+    navigationOptions: {
+      headerTitle: () => <Header/>,
+    }
+  }
+}
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions = {{
-        headerShown: false
-      }}>
-        <Stack.Screen name="Login" component={Login}/>
-        <Stack.Screen name="Home" component={Home}/>
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Drawer/>
   );
 }
 
