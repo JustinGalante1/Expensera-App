@@ -47,10 +47,10 @@ export const PageStyle = StyleSheet.create(
         cardHeader:{
             display: 'flex',
             width: '100%',
-            alignItems: 'center',
+            justifyContent: 'center',
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
-            backgroundColor: '#4a4a4a'
+            backgroundColor: '#4a4a4a',
         },
         cardFooter:{
             display: 'flex',

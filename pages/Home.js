@@ -29,7 +29,6 @@ export class Home extends Component {
     render() {
         const { navigation } = this.props;
         const windowWidth = Dimensions.get('window').width;
-        console.log(windowWidth);
         return (
             <Container>
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}>
@@ -40,7 +39,7 @@ export class Home extends Component {
                             <View style={styles.centerContainer}>
                                 <Card style={{width: windowWidth-20, borderRadius: 20}}>
                                     <CardItem header bordered style={styles.cardHeader}>
-                                        <Text style={{flex: 1, color: '#1ef442'}}>
+                                        <Text style={{color: '#1ef442'}}>
                                             Overview - {this.state.month}
                                         </Text>
                                     </CardItem>
@@ -65,7 +64,7 @@ export class Home extends Component {
                             <View style={styles.centerContainer}>
                                 <Card style={{width: windowWidth-20, borderRadius: 20}}>
                                     <CardItem header bordered style={styles.cardHeader}>
-                                        <Text style={{color: '#1ef442', alignSelf: 'center'}}>
+                                        <Text style={{color: '#1ef442'}}>
                                             Budget - {this.state.month}
                                         </Text>
                                     </CardItem>
