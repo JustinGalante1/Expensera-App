@@ -1,8 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
-import { NavigationContainer } from '@react-navigation/native';
+import React, {Fragment} from 'react';
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 //pages
@@ -11,7 +8,6 @@ import Login from './pages/Login';
 
 //our components
 import Drawer from './components/Drawer';
-import Header from './components/Header';
 
 const Stack = createStackNavigator();
 
