@@ -55,4 +55,15 @@ export const PageStyle = StyleSheet.create(
             backgroundColor: 'white'
         }
     }
+);
+
+export const ButtonStyle = StyleSheet.create(
+    {
+        addButtonWhite:{
+            backgroundColor: 'white'
+        },
+        addButtonGreen:{
+            backgroundColor: '#2fc547'
+        }
+    }
 )

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {StyleSheet, Dimensions} from 'react-native';
+import {StyleSheet, Dimensions,} from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import { firebase } from '../util/firebase';
 
@@ -8,6 +8,8 @@ import {Card, Container, Button, Text, CardItem, View} from 'native-base';
 
 //our components
 import Header from '../components/Header';
+import AddButton from '../components/AddButton';
+import MyModal from '../components/MyModal';
 
 //styles
 import {PageStyle} from '../styles';
@@ -23,7 +25,8 @@ export class Home extends Component {
             budget: 0,
             netSpending: 0,
             percent: 0,
-            remaining: 0,     
+            remaining: 0,
+            modal: false,     
         }
     }
 
@@ -32,7 +35,7 @@ export class Home extends Component {
         const month = d.toLocaleString('default', {month: 'long'});
         this.setState({month: month});
         let currentComponent = this;
-
+        console.log(this.state.modal);
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
                 firebase.firestore().collection(`/users/${user.email}/expenses`).get().then((data)=>{
@@ -77,7 +80,17 @@ export class Home extends Component {
                 // No user is signed in.
             }
         });
-}
+    }
+
+    showModal(){
+        console.log("showing modal");
+        this.setState({modal: true});
+    }
+
+    hideModal(){
+        console.log("hiding modal");
+        this.setState({modal: false});
+    }
 
     render() {
         const { navigation } = this.props;
@@ -114,6 +127,7 @@ export class Home extends Component {
                                     <CardItem footer bordered style={styles.cardFooter}/>
                                 </Card> 
                             </View>
+                            <MyModal visible={this.state.modal} action={this.hideModal.bind(this)}/>
                             <View style={styles.centerContainer}>
                                 <Card style={{width: windowWidth-20, borderRadius: 20}}>
                                     <CardItem header bordered style={styles.cardHeader}>
@@ -139,6 +153,7 @@ export class Home extends Component {
                                     <CardItem footer bordered style={styles.cardFooter}/>
                                 </Card> 
                             </View>
+                            <AddButton action={this.showModal.bind(this)}/>
                         </View>
                 </SafeAreaView>
             </Container>
