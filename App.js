@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
 
 //pages
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 //our components
 import Drawer from './components/Drawer';
@@ -28,6 +29,10 @@ export default class App extends React.Component{
     }
   }
 
+  authenticateUser(){
+    this.setState({loggedIn: true});
+  }
+
   render() {
     const loggedIn = this.state.loggedIn;
     if(loggedIn){
@@ -37,7 +42,16 @@ export default class App extends React.Component{
     }
     else{
       return(
-        <Login/>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions = {{headerShown: false}}>
+            <Stack.Screen name="Login">
+               {props => <Login {...props} action={this.authenticateUser.bind(this)}/>} 
+            </Stack.Screen>
+            <Stack.Screen name="Signup">
+              {props => <Signup {...props} action={this.authenticateUser.bind(this)}/>}
+            </Stack.Screen>
+          </Stack.Navigator>
+        </NavigationContainer>
       );
     }
   }

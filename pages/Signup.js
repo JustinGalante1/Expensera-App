@@ -10,7 +10,7 @@ import {Card, Container, Content, Text, View, Button} from 'native-base';
 import {PageStyle} from '../styles';
 const styles = StyleSheet.flatten(PageStyle);
 
-export class Login extends Component {
+export class Signup extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -27,24 +27,27 @@ export class Login extends Component {
         this.setState({password: text});
     }
 
-    login = () =>{
-        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then(()=>{
-            console.log("successfully logged in");
-            this.props.action();
-        })
-        .catch((error) => {
+    signup = () =>{
+        firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(() => {
+            this.props.action;
+            console.log("succesfully created user");
+            firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then(()=>{
+                console.log("successfully logged in");
+                this.props.action();
+            })
+        }).catch((error)=>{
             console.log(error);
         });
     }
 
     render() {
-        const {navigation} = this.props;
+        const { navigation } = this.props;
         return (
             <Container>
                 <SafeAreaView style={{flex: 0, backgroundColor: '#2fc547'}}/>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
                     <Text>
-                        LOGIN
+                        SIGNUP
                     </Text>
                     <View>
                         <TextInput style={styles.textInput} placeholder="Email" placeholderTextColor = "#4a4a4a" onChangeText={this.handleEmail}/>
@@ -53,14 +56,14 @@ export class Login extends Component {
                         <TextInput style={styles.textInput} placeholder="Password" placeholderTextColor = "#4a4a4a" onChangeText={this.handlePassword}/>
                     </View>
                     <View>
-                        <Button onPress = {this.login}>
+                        <Button onPress = {this.signup}>
                             <Text>
                                 Submit
                             </Text>
                         </Button>
-                        <Button rounded info onPress={()=>navigation.navigate('Signup')}>
+                        <Button rounded info onPress={()=>navigation.navigate('Login')}>
                             <Text>
-                                Signup
+                                Login
                             </Text>
                         </Button>
                     </View>
@@ -70,4 +73,4 @@ export class Login extends Component {
     }
 }
 
-export default Login
+export default Signup
