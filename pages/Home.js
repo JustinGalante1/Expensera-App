@@ -19,7 +19,11 @@ export class Home extends Component {
         this.state = {
             month: "January",
             expenseSum: 0,
-            incomeSum: 0,     
+            incomeSum: 0,
+            budget: 0,
+            netSpending: 0,
+            percent: 0,
+            remaining: 0,     
         }
     }
 
@@ -52,6 +56,22 @@ export class Home extends Component {
                 .catch((error)=>{
                     console.log(error);
                 });
+
+                firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).get().then((doc)=>{
+                    if(!doc.exists){
+                        //i'll figure this out later
+                        console.log("budget doesnt exist");
+                    }
+                    else{
+                        currentComponent.setState({budget: doc.data().budget});
+                        currentComponent.setState({netSpending: doc.data().netSpending});
+                        currentComponent.setState({percent: doc.data().percent});
+                        currentComponent.setState({remaining: doc.data().remaining});
+                    }
+                })
+                .catch((error)=>{
+                    console.log(error);
+                })
 
             } else {
                 // No user is signed in.
@@ -103,24 +123,22 @@ export class Home extends Component {
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Net Spending:
+                                            This Month's Budget: {this.state.budget}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Logged Income:
+                                            Net Spending: {this.state.netSpending}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Logged Expenses:
+                                            % of Budget Used: {this.state.percent}%
                                         </Text>
                                     </CardItem>
                                     <CardItem footer bordered style={styles.cardFooter}/>
                                 </Card> 
                             </View>
-                            
-
                         </View>
                 </SafeAreaView>
             </Container>
