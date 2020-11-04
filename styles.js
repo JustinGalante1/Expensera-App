@@ -29,16 +29,6 @@ export const HeaderStyle = StyleSheet.create(
 
 export const PageStyle = StyleSheet.create(
     {
-        bodyContainer:{
-            justifyContent: 'center',
-            alignItems: 'center',
-            display: 'flex',
-            flex: 1,
-            backgroundColor: 'green',
-            top: 10,
-            resizeMode: 'cover',
-            height: '100%'
-        },
         centerContainer:{
             flex:1, 
             alignItems:'center', 
@@ -47,16 +37,22 @@ export const PageStyle = StyleSheet.create(
         cardHeader:{
             display: 'flex',
             width: '100%',
-            alignItems: 'center',
+            justifyContent: 'center',
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
-            backgroundColor: '#4a4a4a'
+            backgroundColor: '#4a4a4a',
         },
         cardFooter:{
             display: 'flex',
             width: '100%',
             borderBottomLeftRadius: 20,
             borderBottomRightRadius: 20,
+        },
+        textInput:{
+            height: 40,
+            borderColor: '#2fc547',
+            borderWidth: 1,
+            backgroundColor: 'white'
         }
     }
 )

@@ -1,10 +1,11 @@
-import React, {Fragment} from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
 
 //pages
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 //our components
 import Drawer from './components/Drawer';
@@ -20,17 +21,38 @@ const screens = {
   }
 }
 
-export default function App() {
-  return (
-    <Drawer/>
-  );
-}
+export default class App extends React.Component{
+  constructor(){
+    super();
+    this.state = {
+      loggedIn: false
+    }
+  }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  authenticateUser(){
+    this.setState({loggedIn: true});
+  }
+
+  render() {
+    const loggedIn = this.state.loggedIn;
+    if(loggedIn){
+      return(
+        <Drawer/>
+      );
+    }
+    else{
+      return(
+        <NavigationContainer>
+          <Stack.Navigator screenOptions = {{headerShown: false}}>
+            <Stack.Screen name="Login">
+               {props => <Login {...props} action={this.authenticateUser.bind(this)}/>} 
+            </Stack.Screen>
+            <Stack.Screen name="Signup">
+              {props => <Signup {...props} action={this.authenticateUser.bind(this)}/>}
+            </Stack.Screen>
+          </Stack.Navigator>
+        </NavigationContainer>
+      );
+    }
+  }
+}
