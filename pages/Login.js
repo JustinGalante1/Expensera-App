@@ -1,36 +1,59 @@
 import React, { Component } from 'react'
+import { TextInput, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-navigation';
+import { firebase } from '../util/firebase';
 
 //native-base
-import {Card, Container, Content, Text, CardItem, Icon, Right} from 'native-base';
+import {Card, Container, Content, Text, View, Button} from 'native-base';
 
-//our components
-import Header from '../components/Header';
+//styles
+import {PageStyle} from '../styles';
+const styles = StyleSheet.flatten(PageStyle);
 
 export class Login extends Component {
-
     constructor(props) {
         super(props)
         this.state = {
-             
+             email: '',
+             password: ''
         }
+    }
+
+    handleEmail = (text) => {
+        this.setState({email: text});
+    }
+
+    handlePassword = (text) => {
+        this.setState({password: text});
+    }
+
+    login = () =>{
+        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).catch((error)=>{
+            console.log(error);
+        })
     }
 
     render() {
         const { navigation } = this.props;
         return (
             <Container>
-                <Header navigation = {this.props}/>
-                <Content>
-                    <Card>
-                        <CardItem button onPress = {()=>navigation.navigate('Home')}>
+                <SafeAreaView style={{flex: 0, backgroundColor: '#2fc547'}}/>
+                <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
+                    <View>
+                        <TextInput style={styles.textInput} placeholder="Email" placeholderTextColor = "#4a4a4a" onChangeText={this.handleEmail}/>
+                    </View>
+                    <View>
+                        <TextInput style={styles.textInput} placeholder="Password" placeholderTextColor = "#4a4a4a" onChangeText={this.handlePassword}/>
+                    </View>
+                    <View>
+                        <Button onPress = {this.login}>
                             <Text>
-                                LOGIN
+                                Submit
                             </Text>
-                        </CardItem>
-                    </Card>
-                </Content>
+                        </Button>
+                    </View>
+                </SafeAreaView>
             </Container>
-            
         )
     }
 }

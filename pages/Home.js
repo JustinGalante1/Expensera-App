@@ -3,7 +3,7 @@ import {StyleSheet, Dimensions} from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 
 //native base
-import {Card, Container, Content, Text, CardItem, View} from 'native-base';
+import {Card, Container, Button, Text, CardItem, View} from 'native-base';
 
 //our components
 import Header from '../components/Header';
@@ -70,7 +70,7 @@ export class Home extends Component {
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Net Spending: 
+                                            Net Spending:
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
@@ -86,6 +86,8 @@ export class Home extends Component {
                                     <CardItem footer bordered style={styles.cardFooter}/>
                                 </Card> 
                             </View>
+                            
+
                         </View>
                 </SafeAreaView>
             </Container>
