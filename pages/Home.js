@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {StyleSheet, Dimensions} from 'react-native';
 import { SafeAreaView } from 'react-navigation';
+import { firebase } from '../util/firebase';
 
 //native base
 import {Card, Container, Button, Text, CardItem, View} from 'native-base';
@@ -16,7 +17,9 @@ export class Home extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            month: "January"     
+            month: "January",
+            expenseSum: 0,
+            incomeSum: 0,     
         }
     }
 
@@ -24,7 +27,37 @@ export class Home extends Component {
         const d = new Date();
         const month = d.toLocaleString('default', {month: 'long'});
         this.setState({month: month});
-    }
+        let currentComponent = this;
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                firebase.firestore().collection(`/users/${user.email}/expenses`).get().then((data)=>{
+                    let totalExpense = 0;
+                    data.forEach((doc) => {
+                        totalExpense += doc.data().Price;
+                    });
+                    currentComponent.setState({expenseSum: totalExpense});
+                })
+                .catch((error)=>{
+                    console.log(error);
+                });
+
+                firebase.firestore().collection(`/users/${user.email}/incomes`).get().then((data)=>{
+                    let totalIncome = 0;
+                    data.forEach((doc) => {
+                        totalIncome += doc.data().amount;
+                    });
+                    currentComponent.setState({incomeSum: totalIncome});
+                })
+                .catch((error)=>{
+                    console.log(error);
+                });
+
+            } else {
+                // No user is signed in.
+            }
+        });
+}
 
     render() {
         const { navigation } = this.props;
@@ -45,17 +78,17 @@ export class Home extends Component {
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Net Spending: 
+                                            Net Spending: {this.state.incomeSum - this.state.expenseSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Logged Income:
+                                            Logged Income: {this.state.incomeSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Logged Expenses:
+                                            Logged Expenses: {this.state.expenseSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem footer bordered style={styles.cardFooter}/>

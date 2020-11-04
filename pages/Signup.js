@@ -15,7 +15,8 @@ export class Signup extends Component {
         super(props)
         this.state = {
              email: '',
-             password: ''
+             password: '',
+             name: '',
         }
     }
 
@@ -27,12 +28,27 @@ export class Signup extends Component {
         this.setState({password: text});
     }
 
+    handleName = (text) => {
+        this.setState({name: text})
+    }
+
     signup = () =>{
         firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(() => {
             this.props.action;
             console.log("succesfully created user");
+
             firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then(()=>{
                 console.log("successfully logged in");
+                var user = firebase.auth().currentUser;
+
+                const userCredentials = {
+                    name: this.state.name,
+                    email: user.email,
+                    userId: user.uid,
+                    createdAt: new Date().toISOString(),
+                }
+
+                firebase.firestore().doc(`/users/${user.email}`).set(userCredentials);
                 this.props.action();
             })
         }).catch((error)=>{
@@ -49,6 +65,9 @@ export class Signup extends Component {
                     <Text>
                         SIGNUP
                     </Text>
+                    <View>
+                        <TextInput style={styles.textInput} placeholder="Name" placeholderTextColor = "#4a4a4a" onChangeText={this.handleName}/>
+                    </View>
                     <View>
                         <TextInput style={styles.textInput} placeholder="Email" placeholderTextColor = "#4a4a4a" onChangeText={this.handleEmail}/>
                     </View>
