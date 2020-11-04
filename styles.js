@@ -48,11 +48,18 @@ export const PageStyle = StyleSheet.create(
             borderBottomLeftRadius: 20,
             borderBottomRightRadius: 20,
         },
-        textInput:{
+        textInputLogin:{
             height: 40,
             borderColor: '#2fc547',
             borderWidth: 1,
             backgroundColor: 'white'
+        },
+        textInputModal:{
+            height: 40,
+            borderColor: '#2fc547',
+            borderWidth: 1,
+            backgroundColor: '#2fc547',
+            width: '100%',
         }
     }
 );

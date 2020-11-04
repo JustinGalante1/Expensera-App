@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {StyleSheet, Dimensions,} from 'react-native';
+import {StyleSheet, Dimensions, TouchableHighlightBase,} from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import { firebase } from '../util/firebase';
 
@@ -34,14 +34,20 @@ export class Home extends Component {
         const d = new Date();
         const month = d.toLocaleString('default', {month: 'long'});
         this.setState({month: month});
+        this.update();
+    }
+
+    update(){
         let currentComponent = this;
-        console.log(this.state.modal);
+        const d = new Date();
+        const month = d.toLocaleString('default', {month: 'long'});
+
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
                 firebase.firestore().collection(`/users/${user.email}/expenses`).get().then((data)=>{
                     let totalExpense = 0;
                     data.forEach((doc) => {
-                        totalExpense += doc.data().Price;
+                        totalExpense += doc.data().amount;
                     });
                     currentComponent.setState({expenseSum: totalExpense});
                 })
@@ -63,6 +69,7 @@ export class Home extends Component {
                 firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).get().then((doc)=>{
                     if(!doc.exists){
                         //i'll figure this out later
+                        console.log(month);
                         console.log("budget doesnt exist");
                     }
                     else{
@@ -127,7 +134,7 @@ export class Home extends Component {
                                     <CardItem footer bordered style={styles.cardFooter}/>
                                 </Card> 
                             </View>
-                            <MyModal visible={this.state.modal} action={this.hideModal.bind(this)}/>
+                            <MyModal visible={this.state.modal} action={this.hideModal.bind(this)} update={this.update.bind(this)}/>
                             <View style={styles.centerContainer}>
                                 <Card style={{width: windowWidth-20, borderRadius: 20}}>
                                     <CardItem header bordered style={styles.cardHeader}>
@@ -136,18 +143,18 @@ export class Home extends Component {
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
-                                        <Text>
-                                            This Month's Budget: {this.state.budget}
+                                        <Text style={{fontSize: 18}}>
+                                            This Month's Budget: {this.state.budget} 
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Net Spending: {this.state.netSpending}
+                                            Net Spending: {this.state.incomeSum - this.state.expenseSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            % of Budget Used: {this.state.percent}%
+                                            % of Budget Used: {-100*(this.state.incomeSum - this.state.expenseSum)/this.state.budget}%
                                         </Text>
                                     </CardItem>
                                     <CardItem footer bordered style={styles.cardFooter}/>
