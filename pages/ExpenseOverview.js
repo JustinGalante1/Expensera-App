@@ -22,7 +22,35 @@ export class ExpenseOverview extends Component {
              
         }
     }
+    componentDidMount(){
+        const d = new Date();
+        const month = d.toLocaleString('default', {month: 'long'});
+        this.setState({month: month});
+        let currentComponent = this;
 
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                firebase.firestore().collection(`/users/${user.email}/expenses`).get().then((data)=>{
+                    let namesExpenses = [];
+                    let pricesExpenses = [];
+                    let totalExpense = 0;
+                    data.forEach((doc) => {
+                        pricesExpenses.push(doc.data().amount)
+                        namesExpenses.push(doc.data().name)
+                        totalExpense += doc.data().amount;
+                    });
+                    currentComponent.setState({expenseNames: namesExpenses});
+                    currentComponent.setState({expensePrices: pricesExpenses});
+                    currentComponent.setState({expenseSum: totalExpense});
+                })
+                .catch((error)=>{
+                    console.log(error);
+                });
+            } else {
+                // No user is signed in.
+            }
+        });
+    }
     render() {
         const { navigation } = this.props;
         return (

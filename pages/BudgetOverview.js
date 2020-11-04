@@ -22,6 +22,35 @@ export class BudgetOverview extends Component {
              
         }
     }
+    componentDidMount(){
+        const d = new Date();
+        const month = d.toLocaleString('default', {month: 'long'});
+        this.setState({month: month});
+        let currentComponent = this;
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).get().then((doc)=>{
+                    if(!doc.exists){
+                        //i'll figure this out later
+                        console.log("budget doesnt exist");
+                    }
+                    else{
+                        currentComponent.setState({budget: doc.data().budget});
+                        currentComponent.setState({netSpending: doc.data().netSpending});
+                        currentComponent.setState({percent: doc.data().percent});
+                        currentComponent.setState({remaining: doc.data().remaining});
+                    }
+                })
+                .catch((error)=>{
+                    console.log(error);
+                })
+
+            } else {
+                // No user is signed in.
+            }
+        });
+    }
 
     render() {
         const { navigation } = this.props;
