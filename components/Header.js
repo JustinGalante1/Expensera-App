@@ -12,7 +12,6 @@ const Header = (props) => {
     const navigation = props.navigation;
 
     const openMenu = () => {
-        //console.log("hi ufck");
         navigation.openDrawer();
     }
 

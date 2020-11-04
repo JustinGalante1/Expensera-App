@@ -47,10 +47,10 @@ export class Login extends Component {
                         LOGIN
                     </Text>
                     <View>
-                        <TextInput style={styles.textInput} placeholder="Email" placeholderTextColor = "#4a4a4a" onChangeText={this.handleEmail}/>
+                        <TextInput style={styles.textInputLogin} placeholder="Email" placeholderTextColor = "#4a4a4a" onChangeText={this.handleEmail}/>
                     </View>
                     <View>
-                        <TextInput style={styles.textInput} placeholder="Password" placeholderTextColor = "#4a4a4a" onChangeText={this.handlePassword}/>
+                        <TextInput style={styles.textInputLogin} placeholder="Password" placeholderTextColor = "#4a4a4a" onChangeText={this.handlePassword}/>
                     </View>
                     <View>
                         <Button onPress = {this.login}>
