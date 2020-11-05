@@ -4,7 +4,7 @@ import {createAppContainer} from 'react-navigation';
 import Home from '../pages/Home';
 import BudgetOverview from '../pages/BudgetOverview';
 import ExpenseOverview from '../pages/ExpenseOverview';
-import IncomeOverview from '../pages/ExpenseOverview';
+import IncomeOverview from '../pages/IncomeOverview';
 
 const Drawer = createDrawerNavigator({
     Home: {screen: Home},
