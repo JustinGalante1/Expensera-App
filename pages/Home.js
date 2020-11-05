@@ -73,10 +73,7 @@ export class Home extends Component {
                         console.log("budget doesnt exist");
                     }
                     else{
-                        currentComponent.setState({budget: doc.data().budget});
-                        currentComponent.setState({netSpending: doc.data().netSpending});
-                        currentComponent.setState({percent: doc.data().percent});
-                        currentComponent.setState({remaining: doc.data().remaining});
+                        currentComponent.setState({budget: doc.data().amount});
                     }
                 })
                 .catch((error)=>{

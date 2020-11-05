@@ -17,7 +17,7 @@ import MyModal from '../components/MyModal';
 import {PageStyle} from '../styles';
 const styles = StyleSheet.flatten(PageStyle);
 
-export class ExpenseOverview extends Component {
+export class IncomeOverview extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -32,14 +32,12 @@ export class ExpenseOverview extends Component {
             modal: false
         }
     }
-
     componentDidMount(){
         const d = new Date();
         const month = d.toLocaleString('default', {month: 'long'});
         this.setState({month: month});
         this.update();
     }
-
     update(){
         let currentComponent = this;
         const d = new Date();
@@ -47,14 +45,14 @@ export class ExpenseOverview extends Component {
 
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                firebase.firestore().collection(`/users/${user.email}/expenses`).get().then((data)=>{
+                firebase.firestore().collection(`/users/${user.email}/incomes`).get().then((data)=>{
+                    let totalIncome = 0;
                     let dataExpenses = [];
-                    let totalExpense = 0;
                     data.forEach((doc) => {
+                        totalIncome += doc.data().amount;
                         dataExpenses.push(doc.data());
-                        totalExpense += doc.data().amount;
                     });
-                    currentComponent.setState({expenseSum: totalExpense});
+                    currentComponent.setState({incomeSum: totalIncome});
                     currentComponent.setState({expenseData: dataExpenses});
                 })
                 .catch((error)=>{
@@ -65,7 +63,7 @@ export class ExpenseOverview extends Component {
             }
         });
     }
-
+    
     showModal(){
         console.log("showing modal");
         this.setState({modal: true});
@@ -95,12 +93,12 @@ export class ExpenseOverview extends Component {
                                     </CardItem>
                                     <CardItem>
                                         <Text>
-                                            You've Spent:
+                                            You've Earned:
                                         </Text>
                                     </CardItem>
                                     <CardItem>
-                                        <Text style={{color: '#FF0000'}}>
-                                            ${this.state.expenseSum * -1}
+                                        <Text style={{color: '#00FF00'}}>
+                                            ${this.state.incomeSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem>
@@ -133,4 +131,4 @@ export class ExpenseOverview extends Component {
     }
 }
 
-export default ExpenseOverview
+export default IncomeOverview
