@@ -77,7 +77,7 @@ export class Signup extends Component {
                             <Input placeholder='Email' onChangeText={this.handleEmail}></Input>
                         </Item>
                         <Item rounded style={styles.textInputLogin}>
-                            <Input placeholder='Password' onChangeText={this.handlePassword}></Input>
+                            <Input placeholder='Password' onChangeText={this.handlePassword} secureTextEntry={true}></Input>
                         </Item>
                         <View style={{alignItems: 'center', alignContent: 'center'}}>
                             <Button rounded dark onPress = {this.signup} style={{margin: 10, alignSelf: 'center'}}>

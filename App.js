@@ -45,7 +45,7 @@ export default class App extends React.Component{
         <NavigationContainer>
           <Stack.Navigator screenOptions = {{headerShown: false}}>
             <Stack.Screen name="Login">
-               {props => <Login {...props} action={this.authenticateUser.bind(this)}/>} 
+              {props => <Login {...props} action={this.authenticateUser.bind(this)}/>} 
             </Stack.Screen>
             <Stack.Screen name="Signup">
               {props => <Signup {...props} action={this.authenticateUser.bind(this)}/>}
