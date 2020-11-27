@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-navigation';
 import { firebase } from '../util/firebase';
 
 //native-base
-import {Card, Container, Content, Text, View, Button} from 'native-base';
+import {Card, Container, Content, Text, View, Button, H1, Item, Input} from 'native-base';
 
 //styles
 import {PageStyle} from '../styles';
@@ -17,6 +17,7 @@ export class Signup extends Component {
              email: '',
              password: '',
              name: '',
+             message: '',
         }
     }
 
@@ -52,6 +53,7 @@ export class Signup extends Component {
                 this.props.action();
             })
         }).catch((error)=>{
+            this.setState({message: 'Could not create user'})
             console.log(error);
         });
     }
@@ -62,30 +64,37 @@ export class Signup extends Component {
             <Container>
                 <SafeAreaView style={{flex: 0, backgroundColor: '#2fc547'}}/>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
-                    <Text>
-                        SIGNUP
-                    </Text>
-                    <View>
-                        <TextInput style={styles.textInput} placeholder="Name" placeholderTextColor = "#4a4a4a" onChangeText={this.handleName}/>
+                    <View style={{flex:.5, alignContent: 'center', alignSelf: 'center'}}>
+                        <H1 style={styles.titleText}>
+                            Expensera
+                        </H1>
                     </View>
-                    <View>
-                        <TextInput style={styles.textInput} placeholder="Email" placeholderTextColor = "#4a4a4a" onChangeText={this.handleEmail}/>
-                    </View>
-                    <View>
-                        <TextInput style={styles.textInput} placeholder="Password" placeholderTextColor = "#4a4a4a" onChangeText={this.handlePassword}/>
-                    </View>
-                    <View>
-                        <Button onPress = {this.signup}>
-                            <Text>
-                                Submit
+                    <View style={{flex: 1, alignContent: 'center', alignItems: 'center'}}>
+                        <Text style={{color: 'red'}}>
+                            {this.state.message}
+                        </Text>
+                        <Item rounded style={styles.textInputLogin}>
+                            <Input placeholder='Email' onChangeText={this.handleEmail}></Input>
+                        </Item>
+                        <Item rounded style={styles.textInputLogin}>
+                            <Input placeholder='Password' onChangeText={this.handlePassword}></Input>
+                        </Item>
+                        <View style={{alignItems: 'center', alignContent: 'center'}}>
+                            <Button rounded dark onPress = {this.signup} style={{margin: 10, alignSelf: 'center'}}>
+                                <Text>
+                                    Signup
+                                </Text>
+                            </Button>
+                            <Text style={{color: 'white'}}>
+                                Already have an account?
                             </Text>
-                        </Button>
-                        <Button rounded info onPress={()=>navigation.navigate('Login')}>
-                            <Text>
-                                Login
-                            </Text>
-                        </Button>
-                    </View>
+                            <Button rounded primary onPress={()=>navigation.navigate('Login')} style={{margin: 10, alignSelf: 'center'}}>
+                                <Text>
+                                    Login
+                                </Text>
+                            </Button>
+                        </View>
+                    </View>                    
                 </SafeAreaView>
             </Container>
         )

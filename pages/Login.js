@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-navigation';
 import { firebase } from '../util/firebase';
 
 //native-base
-import {Card, Container, Content, Text, View, Button} from 'native-base';
+import {Card, Container, Content, Text, View, Button, H1, H3, Item, Input} from 'native-base';
 
 //styles
 import {PageStyle} from '../styles';
@@ -15,7 +15,8 @@ export class Login extends Component {
         super(props)
         this.state = {
              email: '',
-             password: ''
+             password: '',
+             message: '',
         }
     }
 
@@ -30,10 +31,12 @@ export class Login extends Component {
     login = () =>{
         firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then(()=>{
             console.log("successfully logged in");
+            this.setState({message: ''})
             this.props.action();
         })
         .catch((error) => {
             console.log(error);
+            this.setState({message: 'Incorrect Email or Password'});
         });
     }
 
@@ -43,27 +46,37 @@ export class Login extends Component {
             <Container>
                 <SafeAreaView style={{flex: 0, backgroundColor: '#2fc547'}}/>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
-                    <Text>
-                        LOGIN
-                    </Text>
-                    <View>
-                        <TextInput style={styles.textInputLogin} placeholder="Email" placeholderTextColor = "#4a4a4a" onChangeText={this.handleEmail}/>
+                    <View style={{flex:.5, alignContent: 'center', alignSelf: 'center'}}>
+                        <H1 style={styles.titleText}>
+                            Expensera
+                        </H1>
                     </View>
-                    <View>
-                        <TextInput style={styles.textInputLogin} placeholder="Password" placeholderTextColor = "#4a4a4a" onChangeText={this.handlePassword}/>
-                    </View>
-                    <View>
-                        <Button onPress = {this.login}>
-                            <Text>
-                                Submit
+                    <View style={{flex: 1, alignContent: 'center', alignItems: 'center'}}>
+                        <Text style={{color: 'red'}}>
+                            {this.state.message}
+                        </Text>
+                        <Item rounded style={styles.textInputLogin}>
+                            <Input placeholder='Email' onChangeText={this.handleEmail}></Input>
+                        </Item>
+                        <Item rounded style={styles.textInputLogin}>
+                            <Input placeholder='Password' onChangeText={this.handlePassword}></Input>
+                        </Item>
+                        <View style={{alignItems: 'center', alignContent: 'center'}}>
+                            <Button rounded dark onPress = {this.login} style={{margin: 10, alignSelf: 'center'}}>
+                                <Text>
+                                    Login
+                                </Text>
+                            </Button>
+                            <Text style={{color: 'white'}}>
+                                Don't have an account?
                             </Text>
-                        </Button>
-                        <Button rounded info onPress={()=>navigation.navigate('Signup')}>
-                            <Text>
-                                Signup
-                            </Text>
-                        </Button>
-                    </View>
+                            <Button rounded primary onPress={()=>navigation.navigate('Signup')} style={{margin: 10, alignSelf: 'center'}}>
+                                <Text>
+                                    Signup
+                                </Text>
+                            </Button>
+                        </View>
+                    </View>                    
                 </SafeAreaView>
             </Container>
         )
