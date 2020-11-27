@@ -34,39 +34,27 @@ export class Home extends Component {
         const d = new Date();
         const month = d.toLocaleString('default', {month: 'long'});
         this.setState({month: month});
-        this.update();
-    }
-
-    update(){
         let currentComponent = this;
-        const d = new Date();
-        const month = d.toLocaleString('default', {month: 'long'});
 
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                firebase.firestore().collection(`/users/${user.email}/expenses`).get().then((data)=>{
+                firebase.firestore().collection(`/users/${user.email}/expenses`).onSnapshot((querySnapshot)=>{
                     let totalExpense = 0;
-                    data.forEach((doc) => {
+                    querySnapshot.forEach((doc) => {
                         totalExpense += doc.data().amount;
                     });
                     currentComponent.setState({expenseSum: totalExpense});
                 })
-                .catch((error)=>{
-                    console.log(error);
-                });
 
-                firebase.firestore().collection(`/users/${user.email}/incomes`).get().then((data)=>{
+                firebase.firestore().collection(`/users/${user.email}/incomes`).onSnapshot((querySnapshot)=>{
                     let totalIncome = 0;
-                    data.forEach((doc) => {
+                    querySnapshot.forEach((doc) => {
                         totalIncome += doc.data().amount;
                     });
                     currentComponent.setState({incomeSum: totalIncome});
                 })
-                .catch((error)=>{
-                    console.log(error);
-                });
 
-                firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).get().then((doc)=>{
+                firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).onSnapshot((doc) => {
                     if(!doc.exists){
                         //i'll figure this out later
                         console.log(month);
@@ -75,9 +63,6 @@ export class Home extends Component {
                     else{
                         currentComponent.setState({budget: doc.data().amount});
                     }
-                })
-                .catch((error)=>{
-                    console.log(error);
                 })
 
             } else {
@@ -131,7 +116,7 @@ export class Home extends Component {
                                     <CardItem footer bordered style={styles.cardFooter}/>
                                 </Card> 
                             </View>
-                            <MyModal visible={this.state.modal} action={this.hideModal.bind(this)} update={this.update.bind(this)}/>
+                            <MyModal visible={this.state.modal} action={this.hideModal.bind(this)}/>
                             <View style={styles.centerContainer}>
                                 <Card style={{width: windowWidth-20, borderRadius: 20}}>
                                     <CardItem header bordered style={styles.cardHeader}>

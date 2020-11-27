@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {Modal, StyleSheet, TouchableHighlight, TextInput} from 'react-native'
 
 //native base
-import {Text, View, Radio, Right, Left, ListItem} from 'native-base';
+import {Text, View, CheckBox, Right, Left, ListItem, DatePicker} from 'native-base';
 import { firebase } from '../util/firebase';
 
 //styles
@@ -17,7 +17,8 @@ export class MyModal extends Component {
             name: '',
             isExpense: true,
             amount: '',
-            date: new Date().toISOString(),
+            date: (new Date().getFullYear())+'-'+(new Date().getMonth()+1)+'-'+(new Date().getDate()),
+            month: new Date().getMonth()+1,
             recurring: false,
         }
     }
@@ -25,7 +26,6 @@ export class MyModal extends Component {
     componentDidUpdate = (prevProps, prevState) => {
         if(prevProps.visible !== this.props.visible){
             this.setState({visible: this.props.visible});
-            this.setState({date: new Date().toISOString()});
         }
     }
     
@@ -68,7 +68,12 @@ export class MyModal extends Component {
                     amountToBe = 0;
                 }
                 else{
-                    amountToBe = Number(currentComponent.state.amount);
+                    if(isNaN(currentComponent.state.amount)){
+                        amountToBe = 0;
+                    }
+                    else{
+                        amountToBe = Number(currentComponent.state.amount);
+                    }
                 }
 
                 const addThis = {
@@ -99,43 +104,48 @@ export class MyModal extends Component {
                     <View style={copStyles.modalView}>
                         <ListItem style={{width: '100%'}} onPress={()=>this.setState({isExpense: true})}>
                             <Left>
-                                <Text style={{color: 'black'}}>Expense</Text>
+                                <Text style={{color: '#4a4a4a'}}>Expense</Text>
                             </Left>
                             <Right>
-                                <Radio selected={this.state.isExpense}/>
+                                <CheckBox checked={this.state.isExpense} selectedColor={"#2fc547"} onPress={()=>this.setState({isExpense: true})}/>
                             </Right>
                         </ListItem>
                         <ListItem style={{width: '100%'}} onPress={()=>this.setState({isExpense: false})}>
                             <Left>
-                                <Text>Income</Text>
+                                <Text style={{color: '#4a4a4a'}}>Income</Text>
                             </Left>
                             <Right>
-                                <Radio selected={!this.state.isExpense}/>
+                                <CheckBox checked={!this.state.isExpense} selectedColor={"#2fc547"} onPress={()=>this.setState({isExpense: false})}/>
                             </Right>
                         </ListItem>
-                        <TextInput style={styles.textInputModal} placeholder="Name" placeholderTextColor = "#4a4a4a" onChangeText={this.handleName}/>
-                        <TextInput style={styles.textInputModal} placeholder="Amount" placeholderTextColor = "#4a4a4a" onChangeText={this.handleAmount}/>
-                        <TextInput style={styles.textInputModal} placeholder={this.state.date} defaultValue={this.state.date} placeholderTextColor = "#4a4a4a" onChangeText={this.handleDate}/>
+                        <ListItem style={{width: '100%'}}>
+                            <TextInput style={styles.textInputModal} placeholder="Name" placeholderTextColor = "#d3d3d3" onChangeText={this.handleName}/>
+                        </ListItem>
+                        <ListItem style={{width: '100%'}}>
+                            <TextInput style={styles.textInputModal} placeholder="Amount" placeholderTextColor = "#d3d3d3" onChangeText={this.handleAmount}/>
+                        </ListItem>
+                        <ListItem style={{width: '100%'}}>
+                            <TextInput style={styles.textInputModal} placeholder={this.state.date} defaultValue={this.state.date} placeholderTextColor = "#4a4a4a" onChangeText={this.handleDate}/>
+                        </ListItem>
                         <ListItem style={{width: '100%'}} onPress={()=>this.setState({recurring: !this.state.recurring})}>
                             <Left>
-                                <Text style={{color: 'black'}}>Recurring</Text>
+                                <Text style={{color: '#4a4a4a'}}>Recurring</Text>
                             </Left>
                             <Right>
-                                <Radio selected={this.state.recurring}/>
+                                <CheckBox checked={this.state.recurring} selectedColor={"#2fc547"} onPress={()=>this.setState({recurring: !this.state.recurring})}/>
                             </Right>
                         </ListItem>
                         <TouchableHighlight
-                            style={{ ...copStyles.openButton, backgroundColor: "#2196F3" }}
+                            style={{ ...copStyles.openButton, backgroundColor: "#2fc547", margin: 10}}
                             onPress={() => {
                                 this.handleSubmit();
-                                this.props.update();
                                 this.props.action();
                             }}
                         >
                             <Text style={copStyles.textStyle}>Submit</Text>
                         </TouchableHighlight>
                         <TouchableHighlight
-                            style={{ ...copStyles.openButton, backgroundColor: "#2196F3" }}
+                            style={{ ...copStyles.openButton, backgroundColor: "red" }}
                             onPress={() => {
                                 this.props.action();
                             }}

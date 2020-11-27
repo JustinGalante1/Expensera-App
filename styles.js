@@ -55,9 +55,6 @@ export const PageStyle = StyleSheet.create(
         },
         textInputModal:{
             height: 40,
-            borderColor: '#2fc547',
-            borderWidth: 1,
-            backgroundColor: '#2fc547',
             width: '100%',
         },
         titleText:{
