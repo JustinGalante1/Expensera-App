@@ -15,7 +15,7 @@ export class BudgetModal extends Component {
         this.state = {
             visible: this.props.visible,
             amount: '',
-            date: new Date().toISOString(),
+            month: new Date().toLocaleString('default', {month: 'long'}),
         }
     }
 
@@ -30,15 +30,19 @@ export class BudgetModal extends Component {
         this.setState({amount:text});
     }
 
-    handleDate = (text) => {
-        this.setState({date:text});
+    handleMonth = (text) => {
+        this.setState({month:text});
+    }
+
+    resetValues = () => {
+        this.setState({
+            amount: '',
+            month: new Date().toLocaleString('default', {month: 'long'}),
+        })
     }
 
     handleSubmit = () => {
         let currentComponent = this;
-        const d = new Date();
-        const month = d.toLocaleString('default', {month: 'long'});
-        console.log("submitting");
         firebase.auth().onAuthStateChanged(function(user) {
             if(user){
                 let budgets = "budgets";
@@ -49,15 +53,15 @@ export class BudgetModal extends Component {
                 else{
                     amountToBe = Number(currentComponent.state.amount);
                 }
-
                 const addThis = {
                     amount: amountToBe,
-                    date: currentComponent.state.date,
+                    month: currentComponent.state.month.trim(),
                 }
 
-                firebase.firestore().collection(`/users/${user.email}/${budgets}`).doc(month).set(addThis)
+                firebase.firestore().collection(`/users/${user.email}/${budgets}`).doc(currentComponent.state.month.trim()).set(addThis)
                     .then((doc)=>{
-                        console.log("doc written with id: ", month);
+                        console.log("doc written with id: ", doc.id);
+                        currentComponent.resetValues();
                     })
                     .catch((error)=>{
                         console.log(error);
@@ -74,21 +78,25 @@ export class BudgetModal extends Component {
             <Modal animationType="slide" visible={this.state.visible} transparent={true}>
                 <View style={copStyles.centeredView}>
                     <View style={copStyles.modalView}>
-                        <TextInput style={styles.textInputModal} placeholder="Budget Amount" placeholderTextColor = "#4a4a4a" onChangeText={this.handleAmount}/>
-                        <TextInput style={styles.textInputModal} placeholder={this.state.date} defaultValue={this.state.date} placeholderTextColor = "#4a4a4a" onChangeText={this.handleDate}/>
+                        <ListItem style={{width: '100%'}}>
+                            <TextInput style={styles.textInputModal} placeholder="Budget Amount" placeholderTextColor = "#d3d3d3" onChangeText={this.handleAmount}/>
+                        </ListItem>
+                        <ListItem style={{width: '100%'}}>
+                            <TextInput style={styles.textInputModal} defaultValue={this.state.month} placeholderTextColor = "#d3d3d3" onChangeText={this.handleMonth}/>
+                        </ListItem>
                         <TouchableHighlight
-                            style={{ ...copStyles.openButton, backgroundColor: "#2196F3" }}
+                            style={{ ...copStyles.openButton, backgroundColor: "#2fc547", margin: 10 }}
                             onPress={() => {
                                 this.handleSubmit();
-                                this.props.update();
                                 this.props.action();
                             }}
                         >
                             <Text style={copStyles.textStyle}>Submit</Text>
                         </TouchableHighlight>
                         <TouchableHighlight
-                            style={{ ...copStyles.openButton, backgroundColor: "#2196F3" }}
+                            style={{ ...copStyles.openButton, backgroundColor: 'red' }}
                             onPress={() => {
+                                this.resetValues();
                                 this.props.action();
                             }}
                         >

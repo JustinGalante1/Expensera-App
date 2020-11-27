@@ -21,10 +21,22 @@ export class AddButton extends Component {
     }
 
     render() {
+
+        var images = [
+            require('../assets/whiteAddFinal.png'),
+            require('../assets/greenAddFinal.png'),
+        ]
+
+        var index = 0;
+
+        if(this.props.colorPick == "green"){
+            var index = 1;
+        }
+
         return (
-            <View style={{flex: .4, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', alignSelf: 'flex-end'}}>
-                <TouchableOpacity onPress={()=>this.handlePress()}>
-                    <Image source={require('../assets/whiteAddFinal.png')} style={{flex: 1, width: 175, height: 175, alignSelf:'flex-end', left: 40, top: 40}}/>
+            <View style={{alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-end'}}>
+                <TouchableOpacity onPress={()=>this.handlePress()} style={{height: 70, width: 70, alignItems: 'center', alignContent: 'center'}}>
+                    <Image source={images[index]} style={{flex: 1, width: 175, height: 175, alignSelf: 'center', left: 5, top: 2}}/>
                 </TouchableOpacity>
             </View>
         )

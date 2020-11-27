@@ -93,7 +93,7 @@ export class Home extends Component {
                     <Header navigation = {navigation}/>
                         <View style={styles.centerContainer}>
                             <View style={styles.centerContainer}>
-                                <Card style={{width: windowWidth-20, borderRadius: 20}}>
+                                <Card style={{width: windowWidth-20, borderRadius: 20, shadowColor: '#000', shadowOpacity: 0.5, shadowOffset: {width: 0, height: 6.0}, shadowRadius: 1,}}>
                                     <CardItem header bordered style={styles.cardHeader}>
                                         <Text style={{color: '#1ef442'}}>
                                             Overview - {this.state.month}
@@ -119,7 +119,7 @@ export class Home extends Component {
                             </View>
                             <MyModal visible={this.state.modal} action={this.hideModal.bind(this)}/>
                             <View style={styles.centerContainer}>
-                                <Card style={{width: windowWidth-20, borderRadius: 20}}>
+                                <Card style={{width: windowWidth-20, borderRadius: 20, shadowColor: '#000', shadowOpacity: 0.5, shadowOffset: {width: 0, height: 6.0}, shadowRadius: 1,}}>
                                     <CardItem header bordered style={styles.cardHeader}>
                                         <Text style={{color: '#1ef442'}}>
                                             Budget - {this.state.month}
@@ -143,7 +143,10 @@ export class Home extends Component {
                                     <CardItem footer bordered style={styles.cardFooter}/>
                                 </Card> 
                             </View>
-                            <AddButton action={this.showModal.bind(this)}/>
+                            <View style={{flex: .5, width: '100%', justifyContent: 'flex-end', right: 10}}>
+                                <AddButton action={this.showModal.bind(this)} colorPick="white"/>
+                            </View>
+                            
                         </View>
                 </SafeAreaView>
             </Container>
