@@ -18,7 +18,7 @@ export class MyModal extends Component {
             isExpense: true,
             amount: '',
             date: (new Date().getFullYear())+'-'+(new Date().getMonth()+1)+'-'+(new Date().getDate()),
-            month: new Date().getMonth()+1,
+            month: new Date().toLocaleString('default', {month: 'long'}),
             recurring: false,
         }
     }
@@ -27,6 +27,17 @@ export class MyModal extends Component {
         if(prevProps.visible !== this.props.visible){
             this.setState({visible: this.props.visible});
         }
+    }
+
+    resetValues = () =>{
+        this.setState({
+            name: '',
+            isExpense: true,
+            amount: '',
+            date: (new Date().getFullYear())+'-'+(new Date().getMonth()+1)+'-'+(new Date().getDate()),
+            month: new Date().toLocaleString('default', {month: 'long'}),
+            recurring: false,
+        })
     }
     
     handleName = (text) => {
@@ -39,6 +50,10 @@ export class MyModal extends Component {
 
     handleDate = (text) => {
         this.setState({date:text});
+    }
+
+    handleMonth = (text) => {
+        this.setState({month:text})
     }
 
     handleSubmit = () => {
@@ -81,11 +96,13 @@ export class MyModal extends Component {
                     amount: amountToBe,
                     date: currentComponent.state.date,
                     recurring: currentComponent.state.recurring,
+                    month: currentComponent.state.month,
                 }
 
                 firebase.firestore().collection(`/users/${user.email}/${expenseOrIncome}`).add(addThis)
                     .then((doc)=>{
                         console.log("doc written with id: ", doc.id);
+                        this.resetValues();
                     })
                     .catch((error)=>{
                         console.log(error);
@@ -125,7 +142,7 @@ export class MyModal extends Component {
                             <TextInput style={styles.textInputModal} placeholder="Amount" placeholderTextColor = "#d3d3d3" onChangeText={this.handleAmount}/>
                         </ListItem>
                         <ListItem style={{width: '100%'}}>
-                            <TextInput style={styles.textInputModal} placeholder={this.state.date} defaultValue={this.state.date} placeholderTextColor = "#4a4a4a" onChangeText={this.handleDate}/>
+                            <TextInput style={styles.textInputModal} placeholder="Month" defaultValue={this.state.month} placeholderTextColor = "#d3d3d3" onChangeText={this.handleMonth}/>
                         </ListItem>
                         <ListItem style={{width: '100%'}} onPress={()=>this.setState({recurring: !this.state.recurring})}>
                             <Left>
@@ -147,6 +164,7 @@ export class MyModal extends Component {
                         <TouchableHighlight
                             style={{ ...copStyles.openButton, backgroundColor: "red" }}
                             onPress={() => {
+                                this.resetValues();
                                 this.props.action();
                             }}
                         >

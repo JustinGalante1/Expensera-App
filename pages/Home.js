@@ -19,12 +19,10 @@ export class Home extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            month: "January",
+            month: 'ree',
             expenseSum: 0,
             incomeSum: 0,
             budget: 0,
-            netSpending: 0,
-            percent: 0,
             remaining: 0,
             modal: false,     
         }
@@ -38,7 +36,7 @@ export class Home extends Component {
 
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                firebase.firestore().collection(`/users/${user.email}/expenses`).onSnapshot((querySnapshot)=>{
+                firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", month).onSnapshot((querySnapshot)=>{
                     let totalExpense = 0;
                     querySnapshot.forEach((doc) => {
                         totalExpense += doc.data().amount;
@@ -46,7 +44,7 @@ export class Home extends Component {
                     currentComponent.setState({expenseSum: totalExpense});
                 })
 
-                firebase.firestore().collection(`/users/${user.email}/incomes`).onSnapshot((querySnapshot)=>{
+                firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", month).onSnapshot((querySnapshot)=>{
                     let totalIncome = 0;
                     querySnapshot.forEach((doc) => {
                         totalIncome += doc.data().amount;
@@ -56,12 +54,15 @@ export class Home extends Component {
 
                 firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).onSnapshot((doc) => {
                     if(!doc.exists){
-                        //i'll figure this out later
-                        console.log(month);
+                        currentComponent.setState({budget: 'No Budget'})
+                        currentComponent.setState({percent: 'N/A'})
                         console.log("budget doesnt exist");
                     }
                     else{
                         currentComponent.setState({budget: doc.data().amount});
+                        currentComponent.setState({
+                            percent: 100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)
+                        })
                     }
                 })
 
@@ -100,16 +101,16 @@ export class Home extends Component {
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Net Spending: {this.state.incomeSum - this.state.expenseSum}
+                                            Net Spending: {this.state.expenseSum - this.state.incomeSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
-                                        <Text>
+                                        <Text style={{color: '#2fc547'}}>
                                             Logged Income: {this.state.incomeSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
-                                        <Text>
+                                        <Text style={{color: 'red'}}>
                                             Logged Expenses: {this.state.expenseSum}
                                         </Text>
                                     </CardItem>
@@ -125,18 +126,18 @@ export class Home extends Component {
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
-                                        <Text style={{fontSize: 18}}>
+                                        <Text>
                                             This Month's Budget: {this.state.budget} 
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Net Spending: {this.state.incomeSum - this.state.expenseSum}
+                                            Net Spending: {this.state.incomeSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            % of Budget Used: {-100*(this.state.incomeSum - this.state.expenseSum)/this.state.budget}%
+                                            % of Budget Used: {this.state.percent}%
                                         </Text>
                                     </CardItem>
                                     <CardItem footer bordered style={styles.cardFooter}/>
