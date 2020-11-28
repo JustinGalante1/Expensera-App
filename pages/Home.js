@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-navigation';
 import { firebase } from '../util/firebase';
 
 //native base
-import {Card, Container, Button, Text, CardItem, View} from 'native-base';
+import {Card, Container, Button, Text, CardItem, View, ScrollableTab} from 'native-base';
 
 //our components
 import Header from '../components/Header';
@@ -43,6 +43,18 @@ export class Home extends Component {
                     });
                     totalExpense = parseFloat(totalExpense).toFixed(2);
                     currentComponent.setState({expenseSum: totalExpense});
+
+                    if(parseFloat(currentComponent.state.budget) > 0){
+                        console.log("hi");
+                        currentComponent.setState({
+                            percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
+                        })
+                    }
+                    else{
+                        currentComponent.setState({
+                            percent: 'N/A'
+                        })
+                    }
                 })
 
                 firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", month).onSnapshot((querySnapshot)=>{
@@ -52,6 +64,18 @@ export class Home extends Component {
                     });
                     totalIncome = parseFloat(totalIncome).toFixed(2);
                     currentComponent.setState({incomeSum: totalIncome});
+
+                    if(parseFloat(currentComponent.state.budget) > 0){
+                        console.log("hi");
+                        currentComponent.setState({
+                            percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
+                        })
+                    }
+                    else{
+                        currentComponent.setState({
+                            percent: 'N/A'
+                        })
+                    }
                 })
 
                 firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).onSnapshot((doc) => {

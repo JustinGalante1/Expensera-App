@@ -1,7 +1,7 @@
 import React from 'react'
 import {StyleSheet} from 'react-native';
 
-import {Text, View} from 'native-base';
+import {Text, View, ScrollableTab} from 'native-base';
 
 import {MaterialIcons} from '@expo/vector-icons';
 

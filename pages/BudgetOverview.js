@@ -33,6 +33,19 @@ export class BudgetOverview extends Component {
             bothArray: [],
         }
     }
+
+    updateArray = () =>{
+        let currentComponent = this;
+        let tempArray2 = currentComponent.state.expenseArray.concat(currentComponent.state.incomeArray);
+        tempArray2.sort(function(a, b){
+            return (b.name.localeCompare(a.name));
+        })
+
+        currentComponent.setState({
+            bothArray: tempArray2,
+        })
+    }
+
     componentDidMount(){
         const d = new Date();
         const month = d.toLocaleString('default', {month: 'long'});
@@ -53,8 +66,21 @@ export class BudgetOverview extends Component {
                     });
  
                     totalExpense = parseFloat(totalExpense).toFixed(2);
-                    console.log(totalExpense);
                     currentComponent.setState({expenseSum: totalExpense});
+
+                    currentComponent.updateArray();
+
+                    if(parseFloat(currentComponent.state.budget) > 0){
+                        console.log("hi");
+                        currentComponent.setState({
+                            percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
+                        })
+                    }
+                    else{
+                        currentComponent.setState({
+                            percent: 'N/A'
+                        })
+                    }
                 });
 
                 firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", month).onSnapshot((querySnapshot)=>{
@@ -69,17 +95,20 @@ export class BudgetOverview extends Component {
                     })
                     
                     totalIncome = parseFloat(totalIncome).toFixed(2);
-                    console.log(totalIncome);
                     currentComponent.setState({incomeSum: totalIncome});
-
-                    let tempArray2 = currentComponent.state.expenseArray.concat(currentComponent.state.incomeArray);
-                    tempArray2.sort(function(a, b){
-                        return (b.date.localeCompare(a.date));
-                    })
-
-                    currentComponent.setState({
-                        bothArray: tempArray2,
-                    })
+                    
+                    currentComponent.updateArray();
+                    
+                    if(parseFloat(currentComponent.state.budget) > 0){
+                        currentComponent.setState({
+                            percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
+                        })
+                    }
+                    else{
+                        currentComponent.setState({
+                            percent: 'N/A'
+                        })
+                    }
                 });
                 
 
@@ -118,6 +147,28 @@ export class BudgetOverview extends Component {
     render() {
         const { navigation } = this.props;
         const windowWidth = Dimensions.get('window').width;
+
+        if(parseFloat(this.state.expenseSum) - parseFloat(this.state.incomeSum) > 0){
+            var spendingColor = "red";
+        }
+        else{
+            var spendingColor = "#2fc547";
+        }
+
+        if(parseFloat(this.state.percent) < 66){
+            var percentColor = "#2fc547";
+        }
+        else{
+            var percentColor = "red";
+        }
+
+        if((parseFloat(this.state.budget) - (parseFloat(this.state.expenseSum) - parseFloat(this.state.incomeSum))) > 0){
+            var remainingColor = "#2fc547";
+        }
+        else{
+            var remainingColor = "red";
+        }
+
         return (
             <Container>
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}/>
@@ -133,22 +184,34 @@ export class BudgetOverview extends Component {
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            This Month's Budget: ${this.state.budget}
+                                            This Month's Budget:{' '}
+                                        </Text>
+                                        <Text style={{color: '#33d5ff'}}>
+                                            ${this.state.budget}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Net Spending: ${this.state.expenseSum - this.state.incomeSum}
+                                            Net Spending:{' '}
+                                        </Text>
+                                        <Text style={{color: spendingColor}}>
+                                            ${this.state.expenseSum - this.state.incomeSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            % of Budget Used: {this.state.percent}%
+                                            % of Budget Used:{' '} 
+                                        </Text>
+                                        <Text style={{color: percentColor}}>
+                                            {this.state.percent}%
                                         </Text>
                                     </CardItem>
                                     <CardItem footer bordered style={styles.cardFooter}>
-                                        <Text>
-                                            Dollars Remaining: ${this.state.budget - (this.state.expenseSum - this.state.incomeSum)}
+                                        <Text style={{color: 'black'}}>
+                                            Dollars Remaining:{' '} 
+                                        </Text>
+                                        <Text style={{color: remainingColor}}>
+                                            ${(this.state.budget - (this.state.expenseSum - this.state.incomeSum)).toFixed(2)}
                                         </Text>
                                     </CardItem>
                                 </Card>
@@ -188,7 +251,6 @@ export class BudgetOverview extends Component {
                                 })}
                             </List>
                         </ScrollView>
-                        
                     </View>
                     <View style={{position: 'absolute', bottom: 10, right: 10, backgroundColor: 'transparent'}}>
                         <AddButton action={this.showModal.bind(this)} colorPick="green"/>

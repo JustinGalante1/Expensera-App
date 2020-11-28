@@ -103,7 +103,7 @@ export class MyModal extends Component {
                 firebase.firestore().collection(`/users/${user.email}/${expenseOrIncome}`).add(addThis)
                     .then((doc)=>{
                         console.log("doc written with id: ", doc.id);
-                        this.resetValues();
+                        currentComponent.resetValues();
                     })
                     .catch((error)=>{
                         console.log(error);
