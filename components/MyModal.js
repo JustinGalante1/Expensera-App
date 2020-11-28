@@ -87,7 +87,7 @@ export class MyModal extends Component {
                         amountToBe = 0;
                     }
                     else{
-                        amountToBe = Number(currentComponent.state.amount);
+                        amountToBe = Number(currentComponent.state.amount).toFixed(2);
                     }
                 }
 
@@ -97,6 +97,7 @@ export class MyModal extends Component {
                     date: currentComponent.state.date,
                     recurring: currentComponent.state.recurring,
                     month: currentComponent.state.month,
+                    isExpense: currentComponent.state.isExpense,
                 }
 
                 firebase.firestore().collection(`/users/${user.email}/${expenseOrIncome}`).add(addThis)

@@ -39,16 +39,18 @@ export class Home extends Component {
                 firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", month).onSnapshot((querySnapshot)=>{
                     let totalExpense = 0;
                     querySnapshot.forEach((doc) => {
-                        totalExpense += doc.data().amount;
+                        totalExpense += parseFloat(doc.data().amount);
                     });
+                    totalExpense = parseFloat(totalExpense).toFixed(2);
                     currentComponent.setState({expenseSum: totalExpense});
                 })
 
                 firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", month).onSnapshot((querySnapshot)=>{
                     let totalIncome = 0;
                     querySnapshot.forEach((doc) => {
-                        totalIncome += doc.data().amount;
+                        totalIncome += parseFloat(doc.data().amount);
                     });
+                    totalIncome = parseFloat(totalIncome).toFixed(2);
                     currentComponent.setState({incomeSum: totalIncome});
                 })
 
@@ -61,7 +63,7 @@ export class Home extends Component {
                     else{
                         currentComponent.setState({budget: doc.data().amount});
                         currentComponent.setState({
-                            percent: 100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)
+                            percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
                         })
                     }
                 })
@@ -85,6 +87,21 @@ export class Home extends Component {
     render() {
         const { navigation } = this.props;
         const windowWidth = Dimensions.get('window').width;
+
+        if(parseFloat(this.state.expenseSum) - parseFloat(this.state.incomeSum) > 0){
+            var spendingColor = "red";
+        }
+        else{
+            var spendingColor = "#2fc547";
+        }
+
+        if(parseFloat(this.state.percent) < 66){
+            var percentColor = "#2fc547";
+        }
+        else{
+            var percentColor = "red";
+        }
+
         return (
             <Container>
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}>
@@ -101,17 +118,27 @@ export class Home extends Component {
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Net Spending: {this.state.expenseSum - this.state.incomeSum}
+                                            Net Spending:{' '}
+                                        </Text>
+                                        <Text style={{color: spendingColor}}>
+                                            ${this.state.expenseSum - this.state.incomeSum}
+                                        </Text>
+
+                                    </CardItem>
+                                    <CardItem bordered>
+                                        <Text>
+                                            Logged Income:{' '}
+                                        </Text>
+                                        <Text style={{color:"#2fc547"}}>
+                                            ${this.state.incomeSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
-                                        <Text style={{color: '#2fc547'}}>
-                                            Logged Income: {this.state.incomeSum}
+                                        <Text>
+                                            Logged Expenses:{' '}
                                         </Text>
-                                    </CardItem>
-                                    <CardItem bordered>
                                         <Text style={{color: 'red'}}>
-                                            Logged Expenses: {this.state.expenseSum}
+                                            ${this.state.expenseSum}
                                         </Text>
                                     </CardItem>
                                     <CardItem footer bordered style={styles.cardFooter}/>
@@ -127,17 +154,28 @@ export class Home extends Component {
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            This Month's Budget: {this.state.budget} 
+                                            This Month's Budget:{' '}
+                                        </Text>
+                                        <Text style={{color: '#33d5ff'}}>
+                                            ${this.state.budget}
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            Net Spending: {this.state.incomeSum}
+                                            <Text>
+                                                Net Spending:{' '}
+                                            </Text>
+                                            <Text style={{color: spendingColor}}>
+                                                ${this.state.expenseSum - this.state.incomeSum}
+                                            </Text>
                                         </Text>
                                     </CardItem>
                                     <CardItem bordered>
                                         <Text>
-                                            % of Budget Used: {this.state.percent}%
+                                            % of Budget Used:{' '}
+                                        </Text>
+                                        <Text style={{color: percentColor}}>
+                                            {this.state.percent}%
                                         </Text>
                                     </CardItem>
                                     <CardItem footer bordered style={styles.cardFooter}/>

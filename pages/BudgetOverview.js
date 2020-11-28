@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {StyleSheet, Dimensions} from 'react-native'
 
 //native base
-import {Card, Container, Button, Text, CardItem, View} from 'native-base';
+import {Card, Container, Button, Text, CardItem, View, List, ListItem} from 'native-base';
 
 import { firebase } from '../util/firebase';
 
@@ -28,7 +28,9 @@ export class BudgetOverview extends Component {
             budget: 0,
             remaining: 0,
             modal: false,
-            dataArray: [],
+            expenseArray: [],
+            incomeArray: [],
+            bothArray: [],
         }
     }
     componentDidMount(){
@@ -43,41 +45,56 @@ export class BudgetOverview extends Component {
                     let totalExpense = 0;
                     let tempArray = [];
                     querySnapshot.forEach((doc) => {
-                        totalExpense += doc.data().amount;
+                        totalExpense += parseFloat(doc.data().amount);
                         tempArray.push(doc.data());
                     });
                     currentComponent.setState({
-                        dataArray: currentComponent.state.dataArray.concat(tempArray),
+                        expenseArray: tempArray,
                     });
+ 
+                    totalExpense = parseFloat(totalExpense).toFixed(2);
+                    console.log(totalExpense);
                     currentComponent.setState({expenseSum: totalExpense});
-                })
+                });
 
                 firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", month).onSnapshot((querySnapshot)=>{
                     let totalIncome = 0;
                     let tempArray = [];
                     querySnapshot.forEach((doc) => {
-                        totalIncome += doc.data().amount;
+                        totalIncome += parseFloat(doc.data().amount);
                         tempArray.push(doc.data());
                     });
                     currentComponent.setState({
-                        dataArray: currentComponent.state.dataArray.concat(tempArray),
-                    });
-                    // for(var x=0;x<currentComponent.state.dataArray.length;x++){
-                    //     console.log(currentComponent.state.dataArray[x].name);
-                    // }
+                        incomeArray: tempArray
+                    })
+                    
+                    totalIncome = parseFloat(totalIncome).toFixed(2);
+                    console.log(totalIncome);
                     currentComponent.setState({incomeSum: totalIncome});
-                })
+
+                    let tempArray2 = currentComponent.state.expenseArray.concat(currentComponent.state.incomeArray);
+                    tempArray2.sort(function(a, b){
+                        return (b.date.localeCompare(a.date));
+                    })
+
+                    currentComponent.setState({
+                        bothArray: tempArray2,
+                    })
+                });
+                
 
                 firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).onSnapshot((doc) => {
                     if(!doc.exists){
-                        currentComponent.setState({budget: 'No Budget'})
-                        currentComponent.setState({percent: 'N/A'})
+                        currentComponent.setState({budget: 'No Budget'});
+                        currentComponent.setState({percent: 'N/A'});
                         console.log("budget doesnt exist");
                     }
                     else{
-                        currentComponent.setState({budget: doc.data().amount});
+                        let cleanBudget = doc.data().amount;
+                        cleanBudget = parseFloat(cleanBudget).toFixed(2);
+                        currentComponent.setState({budget: cleanBudget});
                         currentComponent.setState({
-                            percent: 100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)
+                            percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
                         })
                     }
                 })
@@ -140,15 +157,39 @@ export class BudgetOverview extends Component {
                         </View>
                 </SafeAreaView>
                 <View style={{flex: 1.4, width: '100%', position: 'relative'}}>
-                    <ScrollView style={{width: '100%', backgroundColor: 'transparent'}}>
-                        {this.state.dataArray.map((item, index) =>{
-                            return(
-                                <Text key = {index}>
-                                    {item.name}: ${item.amount}
-                                </Text>
-                            )
-                        })}
-                    </ScrollView>
+                    <View style={{flexDirection: 'row', height: '100%', backgroundColor: 'red'}}>
+                        <View style={{position: 'absolute', left: 0, backgroundColor: 'white', width: '50%', height: '100%'}}/>
+                        <View style={{position: 'absolute', right: 0, backgroundColor: '#dcdcdc', width: '50%', height: '100%'}}/>
+                        <ScrollView style={{width: '100%', backgroundColor: 'transparent'}}>
+                            <List>
+                                {this.state.bothArray.map((item, index) =>{
+                                    if(!item.isExpense){
+                                        var color = "#2fc547";
+                                    }
+                                    else{
+                                        var color = 'red';
+                                    }
+                                    return(
+                                        <ListItem key={index}>
+                                            <View style={{flexDirection: 'row', width: '100%'}}>
+                                                <View style={{alignItems: 'flex-start', width: '50%'}}>
+                                                        <Text style={{fontWeight: 'bold'}}>
+                                                            {item.name}:
+                                                        </Text>
+                                                </View>
+                                                <View style={{alignItems: 'flex-end', width: '50%'}}>
+                                                        <Text style={{color: color, fontWeight: 'bold'}}>
+                                                            ${item.amount}
+                                                        </Text>
+                                                </View>
+                                            </View>
+                                        </ListItem>
+                                    )
+                                })}
+                            </List>
+                        </ScrollView>
+                        
+                    </View>
                     <View style={{position: 'absolute', bottom: 10, right: 10, backgroundColor: 'transparent'}}>
                         <AddButton action={this.showModal.bind(this)} colorPick="green"/>
                     </View>

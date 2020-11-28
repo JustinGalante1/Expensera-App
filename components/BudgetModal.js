@@ -51,7 +51,7 @@ export class BudgetModal extends Component {
                     amountToBe = 0;
                 }
                 else{
-                    amountToBe = Number(currentComponent.state.amount);
+                    amountToBe = Number(currentComponent.state.amount).toFixed(2);
                 }
                 const addThis = {
                     amount: amountToBe,
