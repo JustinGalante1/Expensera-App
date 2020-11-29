@@ -23,14 +23,31 @@ const Header = (props) => {
                     Expensera
                 </Text> 
             </View>
-            <View> 
-                <Tabs style={{flex: .1}} renderTabBar={()=> <ScrollableTab />}>
-                    <Tab heading="January">
+            <View style={{shadowColor: '#000', shadowOpacity: 0.5, shadowOffset: {width: 0, height: 6.0}, shadowRadius: 1,}}> 
+                <Tabs renderTabBar={()=> <ScrollableTab style={{backgroundColor: "black"}} underlineStyle={{backgroundColor: '#33d5ff'}} />}>
+                    <Tab heading="January" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
                     </Tab>
-                    <Tab heading="Februrary">
-
+                    <Tab heading="Februrary" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
                     </Tab>
-                    <Tab heading="March">
+                    <Tab heading="March" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
+                    </Tab>
+                    <Tab heading="April" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
+                    </Tab>
+                    <Tab heading="May" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
+                    </Tab>
+                    <Tab heading="June" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
+                    </Tab>
+                    <Tab heading="July" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
+                    </Tab>
+                    <Tab heading="August" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
+                    </Tab>
+                    <Tab heading="September" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
+                    </Tab>
+                    <Tab heading="October" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
+                    </Tab>
+                    <Tab heading="November" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
+                    </Tab>
+                    <Tab heading="December" tabStyle={{backgroundColor: "black"}} activeTabStyle={{backgroundColor: 'black'}}>
                     </Tab>
                 </Tabs>
             </View>

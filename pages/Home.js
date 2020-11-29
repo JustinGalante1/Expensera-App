@@ -126,7 +126,7 @@ export class Home extends Component {
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}>
                 </SafeAreaView>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
-                    <View style={{flex: .15}}>
+                    <View style={{flex: .15, backgroundColor: 'black'}}>
                         <Header navigation = {navigation}/>
                     </View>
                         <View style={styles.centerContainer}>
