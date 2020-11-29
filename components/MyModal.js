@@ -96,7 +96,7 @@ export class MyModal extends Component {
                     amount: amountToBe,
                     date: currentComponent.state.date,
                     recurring: currentComponent.state.recurring,
-                    month: currentComponent.state.month,
+                    month: currentComponent.state.month.trim(),
                     isExpense: currentComponent.state.isExpense,
                 }
 

@@ -19,19 +19,21 @@ export class Home extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            month: 'ree',
+            month: new Date().toLocaleString('default', {month: 'long'}),
             expenseSum: 0,
             incomeSum: 0,
             budget: 0,
             remaining: 0,
             modal: false,     
         }
+        this.expenseListener;
+        this.incomeListener;
+        this.budgetListener;
     }
 
     updateBudget = () => {
         let currentComponent = this;
         if(parseFloat(currentComponent.state.budget) > 0){
-            console.log("hi");
             currentComponent.setState({
                 percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
             })
@@ -43,15 +45,24 @@ export class Home extends Component {
         }
     }
 
-    componentDidMount(){
-        const d = new Date();
-        const month = d.toLocaleString('default', {month: 'long'});
-        this.setState({month: month});
-        let currentComponent = this;
+    changeInfo(){
 
+        if(this.budgetListener != undefined){
+            this.budgetListener();
+        }
+
+        if(this.expenseListener != undefined){
+            this.expenseListener();
+        }
+
+        if(this.incomeListener != undefined){
+            this.incomeListener();
+        }
+        let currentComponent = this;
+        console.log(currentComponent.state.month);
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", month).onSnapshot((querySnapshot)=>{
+                currentComponent.expenseListener = firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", currentComponent.state.month).onSnapshot((querySnapshot)=>{
                     let totalExpense = 0;
                     querySnapshot.forEach((doc) => {
                         totalExpense += parseFloat(doc.data().amount);
@@ -62,7 +73,7 @@ export class Home extends Component {
                     currentComponent.updateBudget();
                 })
 
-                firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", month).onSnapshot((querySnapshot)=>{
+                currentComponent.incomeListener = firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", currentComponent.state.month).onSnapshot((querySnapshot)=>{
                     let totalIncome = 0;
                     querySnapshot.forEach((doc) => {
                         totalIncome += parseFloat(doc.data().amount);
@@ -73,11 +84,10 @@ export class Home extends Component {
                     currentComponent.updateBudget();
                 })
 
-                firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).onSnapshot((doc) => {
+                currentComponent.budgetListener = firebase.firestore().doc(`/users/${user.email}/budgets/${currentComponent.state.month}`).onSnapshot((doc) => {
                     if(!doc.exists){
                         currentComponent.setState({budget: 'No Budget'})
                         currentComponent.setState({percent: 'N/A'})
-                        console.log("budget doesnt exist");
                     }
                     else{
                         currentComponent.setState({budget: doc.data().amount});
@@ -86,11 +96,20 @@ export class Home extends Component {
                         })
                     }
                 })
-
             } else {
                 // No user is signed in.
             }
         });
+    }
+
+    componentDidMount(){
+        this.changeInfo();
+    }
+
+    componentDidUpdate = (prevProps, prevState) => {
+        if(prevState.month !== this.state.month){
+            this.changeInfo();
+        }
     }
 
     showModal(){
@@ -101,6 +120,11 @@ export class Home extends Component {
     hideModal(){
         console.log("hiding modal");
         this.setState({modal: false});
+    }
+
+    setMonth(newMonth){
+        this.setState({month: newMonth});
+        //this.displayInfo();
     }
 
     render() {
@@ -126,8 +150,8 @@ export class Home extends Component {
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}>
                 </SafeAreaView>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
-                    <View style={{flex: .15, backgroundColor: 'black'}}>
-                        <Header navigation = {navigation}/>
+                    <View style={{flex: .15}}>
+                        <Header navigation = {navigation} setMonth={this.setMonth.bind(this)}/>
                     </View>
                         <View style={styles.centerContainer}>
                             <View style={styles.centerContainer}>
