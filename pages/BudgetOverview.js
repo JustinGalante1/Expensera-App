@@ -173,53 +173,55 @@ export class BudgetOverview extends Component {
             <Container>
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}/>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
-                    <Header navigation = {navigation}/>
-                        <View style={styles.centerContainer}>
-                            <View style={{flex:1, alignItems:'center',justifyContent:'center'}}>
-                                <Card style={{width: windowWidth-20, borderRadius: 20, backgroundColor: 'white', shadowColor: '#000', shadowOpacity: 0.5, shadowOffset: {width: 0, height: 6.0}, shadowRadius: 1,}}>
-                                    <CardItem header bordered style={styles.cardHeader}>
-                                        <Text style={{color: '#1ef442'}}>
-                                            Overview - {this.state.month}
-                                        </Text>
-                                    </CardItem>
-                                    <CardItem bordered>
-                                        <Text>
-                                            This Month's Budget:{' '}
-                                        </Text>
-                                        <Text style={{color: '#33d5ff'}}>
-                                            ${this.state.budget}
-                                        </Text>
-                                    </CardItem>
-                                    <CardItem bordered>
-                                        <Text>
-                                            Net Spending:{' '}
-                                        </Text>
-                                        <Text style={{color: spendingColor}}>
-                                            ${this.state.expenseSum - this.state.incomeSum}
-                                        </Text>
-                                    </CardItem>
-                                    <CardItem bordered>
-                                        <Text>
-                                            % of Budget Used:{' '} 
-                                        </Text>
-                                        <Text style={{color: percentColor}}>
-                                            {this.state.percent}%
-                                        </Text>
-                                    </CardItem>
-                                    <CardItem footer bordered style={styles.cardFooter}>
-                                        <Text style={{color: 'black'}}>
-                                            Dollars Remaining:{' '} 
-                                        </Text>
-                                        <Text style={{color: remainingColor}}>
-                                            ${(this.state.budget - (this.state.expenseSum - this.state.incomeSum)).toFixed(2)}
-                                        </Text>
-                                    </CardItem>
-                                </Card>
-                            </View> 
-                            <BudgetModal visible={this.state.modal} action={this.hideModal.bind(this)}/>
-                        </View>
+                    <View style={{flex: 1}}>
+                        <Header navigation = {navigation}/>
+                    </View>
+                    <View style={[styles.centerContainer], {flex: 2.5}}>
+                        <View style={{alignItems:'center',justifyContent:'center'}}>
+                            <Card style={{width: windowWidth-20, borderRadius: 20, backgroundColor: 'white', shadowColor: '#000', shadowOpacity: 0.5, shadowOffset: {width: 0, height: 6.0}, shadowRadius: 1,}}>
+                                <CardItem header bordered style={styles.cardHeader}>
+                                    <Text style={{color: '#1ef442'}}>
+                                        Overview - {this.state.month}
+                                    </Text>
+                                </CardItem>
+                                <CardItem bordered>
+                                    <Text>
+                                        This Month's Budget:{' '}
+                                    </Text>
+                                    <Text style={{color: '#33d5ff'}}>
+                                        ${this.state.budget}
+                                    </Text>
+                                </CardItem>
+                                <CardItem bordered>
+                                    <Text>
+                                        Net Spending:{' '}
+                                    </Text>
+                                    <Text style={{color: spendingColor}}>
+                                        ${this.state.expenseSum - this.state.incomeSum}
+                                    </Text>
+                                </CardItem>
+                                <CardItem bordered>
+                                    <Text>
+                                        % of Budget Used:{' '} 
+                                    </Text>
+                                    <Text style={{color: percentColor}}>
+                                        {this.state.percent}%
+                                    </Text>
+                                </CardItem>
+                                <CardItem footer bordered style={styles.cardFooter}>
+                                    <Text style={{color: 'black'}}>
+                                        Dollars Remaining:{' '} 
+                                    </Text>
+                                    <Text style={{color: remainingColor}}>
+                                        ${(this.state.budget - (this.state.expenseSum - this.state.incomeSum)).toFixed(2)}
+                                    </Text>
+                                </CardItem>
+                            </Card>
+                        </View> 
+                        <BudgetModal visible={this.state.modal} action={this.hideModal.bind(this)}/>
+                    </View>
                 </SafeAreaView>
-                <View style={{flex: 1.4, width: '100%', position: 'relative'}}>
+                <View style={{flex: 1, width: '100%', position: 'relative'}}>
                     <View style={{flexDirection: 'row', height: '100%', backgroundColor: 'red'}}>
                         <View style={{position: 'absolute', left: 0, backgroundColor: 'white', width: '50%', height: '100%'}}/>
                         <View style={{position: 'absolute', right: 0, backgroundColor: '#dcdcdc', width: '50%', height: '100%'}}/>

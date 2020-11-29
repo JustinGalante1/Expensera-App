@@ -1,7 +1,7 @@
 import React from 'react'
 import {StyleSheet} from 'react-native';
 
-import {Text, View, ScrollableTab} from 'native-base';
+import {Text, View, Tab, Tabs, ScrollableTab} from 'native-base';
 
 import {MaterialIcons} from '@expo/vector-icons';
 
@@ -16,12 +16,23 @@ const Header = (props) => {
     }
 
     return (
-        <View style={styles.headerContainer}>
+        <View style={[styles.headerContainer]}>
             <MaterialIcons name='menu' size={40} onPress={openMenu} style={styles.drawerIcon}/>
             <View>
                 <Text style = {styles.title}>
                     Expensera
                 </Text> 
+            </View>
+            <View> 
+                <Tabs style={{flex: .1}} renderTabBar={()=> <ScrollableTab />}>
+                    <Tab heading="January">
+                    </Tab>
+                    <Tab heading="Februrary">
+
+                    </Tab>
+                    <Tab heading="March">
+                    </Tab>
+                </Tabs>
             </View>
         </View>
     )

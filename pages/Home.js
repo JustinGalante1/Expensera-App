@@ -28,6 +28,21 @@ export class Home extends Component {
         }
     }
 
+    updateBudget = () => {
+        let currentComponent = this;
+        if(parseFloat(currentComponent.state.budget) > 0){
+            console.log("hi");
+            currentComponent.setState({
+                percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
+            })
+        }
+        else{
+            currentComponent.setState({
+                percent: 'N/A'
+            })
+        }
+    }
+
     componentDidMount(){
         const d = new Date();
         const month = d.toLocaleString('default', {month: 'long'});
@@ -44,17 +59,7 @@ export class Home extends Component {
                     totalExpense = parseFloat(totalExpense).toFixed(2);
                     currentComponent.setState({expenseSum: totalExpense});
 
-                    if(parseFloat(currentComponent.state.budget) > 0){
-                        console.log("hi");
-                        currentComponent.setState({
-                            percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
-                        })
-                    }
-                    else{
-                        currentComponent.setState({
-                            percent: 'N/A'
-                        })
-                    }
+                    currentComponent.updateBudget();
                 })
 
                 firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", month).onSnapshot((querySnapshot)=>{
@@ -65,17 +70,7 @@ export class Home extends Component {
                     totalIncome = parseFloat(totalIncome).toFixed(2);
                     currentComponent.setState({incomeSum: totalIncome});
 
-                    if(parseFloat(currentComponent.state.budget) > 0){
-                        console.log("hi");
-                        currentComponent.setState({
-                            percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
-                        })
-                    }
-                    else{
-                        currentComponent.setState({
-                            percent: 'N/A'
-                        })
-                    }
+                    currentComponent.updateBudget();
                 })
 
                 firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).onSnapshot((doc) => {
@@ -131,7 +126,9 @@ export class Home extends Component {
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}>
                 </SafeAreaView>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
-                    <Header navigation = {navigation}/>
+                    <View style={{flex: .15}}>
+                        <Header navigation = {navigation}/>
+                    </View>
                         <View style={styles.centerContainer}>
                             <View style={styles.centerContainer}>
                                 <Card style={{width: windowWidth-20, borderRadius: 20, shadowColor: '#000', shadowOpacity: 0.5, shadowOffset: {width: 0, height: 6.0}, shadowRadius: 1,}}>
