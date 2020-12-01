@@ -22,7 +22,7 @@ export class BudgetOverview extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            month: "January",
+            month: new Date().toLocaleString('default', {month: 'long'}),
             expenseSum: 0,
             incomeSum: 0,
             budget: 0,
@@ -32,6 +32,9 @@ export class BudgetOverview extends Component {
             incomeArray: [],
             bothArray: [],
         }
+        this.incomeListener;
+        this.expenseListener;
+        this.budgetListener;
     }
 
     updateArray = () =>{
@@ -46,15 +49,26 @@ export class BudgetOverview extends Component {
         })
     }
 
-    componentDidMount(){
-        const d = new Date();
-        const month = d.toLocaleString('default', {month: 'long'});
-        this.setState({month: month});
-        let currentComponent = this;
+    changeInfo(){
+        if(this.budgetListener != undefined){
+            console.log("removing old budget listener");
+            this.budgetListener();
+        }
 
+        if(this.expenseListener != undefined){
+            console.log("removing old expense listener");
+            this.expenseListener();
+        }
+
+        if(this.incomeListener != undefined){
+            console.log("removing old income listener");
+            this.incomeListener();
+        }
+
+        let currentComponent = this;
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {                
-                firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", month).onSnapshot((querySnapshot)=>{
+                currentComponent.expenseListener = firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", currentComponent.state.month).onSnapshot((querySnapshot)=>{
                     let totalExpense = 0;
                     let tempArray = [];
                     querySnapshot.forEach((doc) => {
@@ -83,7 +97,7 @@ export class BudgetOverview extends Component {
                     }
                 });
 
-                firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", month).onSnapshot((querySnapshot)=>{
+                currentComponent.incomeListener = firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", currentComponent.state.month).onSnapshot((querySnapshot)=>{
                     let totalIncome = 0;
                     let tempArray = [];
                     querySnapshot.forEach((doc) => {
@@ -112,7 +126,7 @@ export class BudgetOverview extends Component {
                 });
                 
 
-                firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).onSnapshot((doc) => {
+                currentComponent.budgetListener = firebase.firestore().doc(`/users/${user.email}/budgets/${currentComponent.state.month}`).onSnapshot((doc) => {
                     if(!doc.exists){
                         currentComponent.setState({budget: 'No Budget'});
                         currentComponent.setState({percent: 'N/A'});
@@ -132,8 +146,19 @@ export class BudgetOverview extends Component {
                 // No user is signed in.
             }
         });
+
     }
 
+    componentDidMount(){
+        this.changeInfo();
+    }
+
+    componentDidUpdate = (prevProps, prevState) => {
+        if(prevState.month !== this.state.month){
+            this.changeInfo();
+        }
+    }
+    
     showModal(){
         console.log("showing modal");
         this.setState({modal: true});
@@ -142,6 +167,11 @@ export class BudgetOverview extends Component {
     hideModal(){
         console.log("hiding modal");
         this.setState({modal: false});
+    }
+
+    setMonth(newMonth){
+        this.setState({month: newMonth});
+        //this.displayInfo();
     }
 
     render() {
@@ -174,7 +204,7 @@ export class BudgetOverview extends Component {
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}/>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
                     <View style={{flex: 1}}>
-                        <Header navigation = {navigation}/>
+                        <Header navigation = {navigation} setMonth={this.setMonth.bind(this)}/>
                     </View>
                     <View style={[styles.centerContainer], {flex: 2.5}}>
                         <View style={{alignItems:'center',justifyContent:'center'}}>

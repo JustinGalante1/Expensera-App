@@ -46,16 +46,18 @@ export class Home extends Component {
     }
 
     changeInfo(){
-
         if(this.budgetListener != undefined){
+            console.log("removing old budget listener");
             this.budgetListener();
         }
 
         if(this.expenseListener != undefined){
+            console.log("removing old expense listener");
             this.expenseListener();
         }
 
         if(this.incomeListener != undefined){
+            console.log("removing old income listener");
             this.incomeListener();
         }
         let currentComponent = this;
