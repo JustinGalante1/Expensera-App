@@ -12,6 +12,9 @@ import { SafeAreaView } from 'react-navigation';
 import Header from '../components/Header';
 import AddButton from '../components/AddButton';
 import MyModal from '../components/MyModal';
+import { SwipeRow } from 'react-native-swipe-list-view';
+
+import { Feather } from '@expo/vector-icons'; 
 
 //styles
 import {PageStyle} from '../styles';
@@ -33,6 +36,9 @@ export class IncomeOverview extends Component {
             modal: false
         }
         this.incomeListener;
+        this.openRowRefs=[];
+
+        this.rowRef = React.createRef();
     }
     
     changeInfo(){
@@ -47,10 +53,10 @@ export class IncomeOverview extends Component {
                     let tempArray = [];
                     querySnapshot.forEach((doc) => {
                         totalIncome += parseFloat(doc.data().amount);
-                        tempArray.push(doc.data());
+                        tempArray.push(doc);
                     });
                     tempArray.sort(function(a, b){
-                        return (b.name.localeCompare(a.name));
+                        return (b.data().date.localeCompare(a.data().date));
                     })
                     currentComponent.setState({
                         incomeArray: tempArray
@@ -90,6 +96,33 @@ export class IncomeOverview extends Component {
     setMonth(newMonth){
         this.setState({month: newMonth});
         //this.displayInfo();
+    }
+
+    closeAllOpenRows(index){
+        let allEmpty = true;
+        for(var x=0;x<this.openRowRefs.length;x++){
+            if(this.openRowRefs[x]){
+                allEmpty = false;
+            }
+            this.openRowRefs[x] && this.openRowRefs[x].closeRow();
+        }
+        if(allEmpty){
+            this.openRowRefs = [];
+        }
+    }
+
+    deleteDoc(item, index){
+        this.closeAllOpenRows(index);
+        firebase.auth().onAuthStateChanged(function(user) {
+            if(user){
+                firebase.firestore().collection(`/users/${user.email}/incomes`).doc(item.id).delete().then(()=>{
+                    console.log("successfully deleted income");
+                })
+                .catch((error) => {
+                    console.log("problem while deleting income");
+                })
+            }
+        });
     }
 
     render() {
@@ -139,20 +172,23 @@ export class IncomeOverview extends Component {
                                 {this.state.incomeArray.map((item, index) =>{
                                     var color = "#00FF00";
                                     return(
-                                        <ListItem key={index}>
-                                            <View style={{flexDirection: 'row', width: '100%'}}>
-                                                <View style={{alignItems: 'flex-start', width: '50%'}}>
-                                                        <Text style={{fontWeight: 'bold'}}>
-                                                            {item.name}:
-                                                        </Text>
+                                        <View style={{flexDirection: 'row', width: '100%'}} key={index}>
+                                            <ListItem>
+                                                <View style={{width: '50%'}}>
+                                                    <Text>{item.data().name}</Text>
                                                 </View>
-                                                <View style={{alignItems: 'flex-end', width: '50%'}}>
-                                                        <Text style={{color: color, fontWeight: 'bold'}}>
-                                                            ${item.amount}
-                                                        </Text>
-                                                </View>
-                                            </View>
-                                        </ListItem>
+                                                <SwipeRow ref={(ref) => {this.openRowRefs[index] = ref}} preview={true} previewOpenValue={55} leftOpenValue={55} disableLeftSwipe={true} stopLeftSwipe={75} style={{width: '50%', height: 50}}>
+                                                    <View style={slideStyles.standaloneRowBack}>
+                                                        <Feather name="trash-2" size={24} color="red" style={{left: 10}} onPress={()=>{
+                                                            this.deleteDoc(item, index);
+                                                        }}/>
+                                                    </View>
+                                                    <View style={slideStyles.standaloneRowFront}>
+                                                        <Text style={{color: color, fontWeight: 'bold'}}>${item.data().amount}</Text>
+                                                    </View>
+                                                </SwipeRow>
+                                            </ListItem>
+                                        </View>
                                     )
                                 })}
                             </List>
@@ -169,5 +205,19 @@ export class IncomeOverview extends Component {
         )
     }
 }
-
+const slideStyles = StyleSheet.create({
+    standaloneRowFront: {
+        alignItems: 'center',
+        backgroundColor: '#dcdcdc',
+        justifyContent: 'center',
+        height: 50,
+    },
+    standaloneRowBack: {
+        alignItems: 'center',
+        backgroundColor: '#dcdcdc',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+});
 export default IncomeOverview

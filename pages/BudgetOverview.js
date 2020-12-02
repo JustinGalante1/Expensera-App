@@ -48,7 +48,7 @@ export class BudgetOverview extends Component {
         let currentComponent = this;
         let tempArray2 = currentComponent.state.expenseArray.concat(currentComponent.state.incomeArray);
         tempArray2.sort(function(a, b){
-            return (b.data().name.localeCompare(a.data().name));
+            return (b.data().date.localeCompare(a.data().date));
         })
 
         currentComponent.setState({
