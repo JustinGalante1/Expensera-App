@@ -135,24 +135,24 @@ export class ExpenseOverview extends Component {
                     <View style={{flex: 1}}>
                         <Header navigation = {navigation} setMonth={this.setMonth.bind(this)}/>
                     </View>
-                    <View style={[styles.centerContainer], {flex: 2.2}}>
+                    <View style={[styles.centerContainer], {flex: 3}}>
                         <View style={{alignItems:'center',justifyContent:'center'}}>
                             <Card style={{width: windowWidth-20, backgroundColor: '#RRGGBBFF', alignItems: 'center', borderRadius: 20, shadowColor: '#000', shadowOpacity: 0.5, shadowOffset: {width: 0, height: 6.0}, shadowRadius: 1,}}>
-                                <ImageBackground source={require('../assets/down.png')} style={{alignItems: 'center', overflow: 'hidden', width: "100%", borderRadius: 20}}>    
+                                <ImageBackground source={require('../assets/down.png')} style={{alignItems: 'center', overflow: 'hidden', width: windowWidth-20, borderRadius: 20}}>    
                                     <CardItem header style={styles.cardHeader, {backgroundColor: '#RRGGBBFF'}}>
                                     </CardItem>
                                     <CardItem style = {{backgroundColor: '#RRGGBBFF'}}>
-                                        <Text style = {{fontSize: "30%", fontWeight: 'bold', backgroundColor: '#RRGGBBFF'}}>
+                                        <Text style = {{fontSize: 30, fontWeight: 'bold'}}>
                                             You've Spent:
                                         </Text>
                                     </CardItem>
                                     <CardItem style = {{backgroundColor: '#RRGGBBFF'}}>
-                                        <Text style={{color: '#FF0000', fontSize: "40%", fontWeight: 'bold', backgroundColor: '#RRGGBBFF'}}>
+                                        <Text style={{color: '#FF0000', fontSize: 30, fontWeight: 'bold'}}>
                                             ${this.state.expenseSum * -1}
                                         </Text>
                                     </CardItem>
                                     <CardItem style = {{backgroundColor: '#RRGGBBFF'}}>
-                                        <Text style = {{fontSize: "30%", fontWeight: 'bold', backgroundColor: '#RRGGBBFF'}}>
+                                        <Text style = {{fontSize: 30, fontWeight: 'bold'}}>
                                             This Month
                                         </Text>
                                     </CardItem>
