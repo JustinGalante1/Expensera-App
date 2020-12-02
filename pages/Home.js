@@ -231,7 +231,6 @@ export class Home extends Component {
                             <View style={{flex: .5, width: '100%', justifyContent: 'flex-end', right: 10}}>
                                 <AddButton action={this.showModal.bind(this)} colorPick="white"/>
                             </View>
-                            
                         </View>
                 </SafeAreaView>
             </Container>

@@ -13,6 +13,10 @@ import Header from '../components/Header';
 import AddButton from '../components/AddButton';
 import BudgetModal from '../components/BudgetModal';
 
+import { SwipeRow } from 'react-native-swipe-list-view';
+
+import { Feather } from '@expo/vector-icons'; 
+
 //styles
 import {PageStyle} from '../styles';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -35,13 +39,16 @@ export class BudgetOverview extends Component {
         this.incomeListener;
         this.expenseListener;
         this.budgetListener;
+        this.openRowRefs=[];
+
+        this.rowRef = React.createRef();
     }
 
     updateArray = () =>{
         let currentComponent = this;
         let tempArray2 = currentComponent.state.expenseArray.concat(currentComponent.state.incomeArray);
         tempArray2.sort(function(a, b){
-            return (b.name.localeCompare(a.name));
+            return (b.data().name.localeCompare(a.data().name));
         })
 
         currentComponent.setState({
@@ -67,13 +74,13 @@ export class BudgetOverview extends Component {
 
         let currentComponent = this;
         firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {                
+            if (user) {        
                 currentComponent.expenseListener = firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", currentComponent.state.month).onSnapshot((querySnapshot)=>{
                     let totalExpense = 0;
                     let tempArray = [];
                     querySnapshot.forEach((doc) => {
                         totalExpense += parseFloat(doc.data().amount);
-                        tempArray.push(doc.data());
+                        tempArray.push(doc);
                     });
                     currentComponent.setState({
                         expenseArray: tempArray,
@@ -85,7 +92,6 @@ export class BudgetOverview extends Component {
                     currentComponent.updateArray();
 
                     if(parseFloat(currentComponent.state.budget) > 0){
-                        console.log("hi");
                         currentComponent.setState({
                             percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
                         })
@@ -102,7 +108,7 @@ export class BudgetOverview extends Component {
                     let tempArray = [];
                     querySnapshot.forEach((doc) => {
                         totalIncome += parseFloat(doc.data().amount);
-                        tempArray.push(doc.data());
+                        tempArray.push(doc);
                     });
                     currentComponent.setState({
                         incomeArray: tempArray
@@ -172,6 +178,43 @@ export class BudgetOverview extends Component {
     setMonth(newMonth){
         this.setState({month: newMonth});
         //this.displayInfo();
+    }
+
+    closeAllOpenRows(index){
+        allEmpty = true;
+        for(var x=0;x<this.openRowRefs.length;x++){
+            if(this.openRowRefs[x]){
+                allEmpty = false;
+            }
+            this.openRowRefs[x] && this.openRowRefs[x].closeRow();
+        }
+        if(allEmpty){
+            this.openRowRefs = [];
+        }
+    }
+
+    deleteDoc(item, index){
+        this.closeAllOpenRows(index);
+        firebase.auth().onAuthStateChanged(function(user) {
+            if(user){
+                if(item.data().isExpense){
+                    firebase.firestore().collection(`/users/${user.email}/expenses`).doc(item.id).delete().then(()=>{
+                        console.log("successfully deleted expense");
+                    })
+                    .catch((error) =>{
+                        console.log("problem while deleting expense");
+                    });
+                }
+                else{
+                    firebase.firestore().collection(`/users/${user.email}/incomes`).doc(item.id).delete().then(()=>{
+                        console.log("successfully deleted income");
+                    })
+                    .catch((error) => {
+                        console.log("problem while deleting income");
+                    })
+                }
+            }
+        });
     }
 
     render() {
@@ -255,30 +298,33 @@ export class BudgetOverview extends Component {
                     <View style={{flexDirection: 'row', height: '100%', backgroundColor: 'red'}}>
                         <View style={{position: 'absolute', left: 0, backgroundColor: 'white', width: '50%', height: '100%'}}/>
                         <View style={{position: 'absolute', right: 0, backgroundColor: '#dcdcdc', width: '50%', height: '100%'}}/>
-                        <ScrollView style={{width: '100%', backgroundColor: 'transparent'}}>
+                        <ScrollView style={{width: '100%', backgroundColor: 'transparent'}} scrollEnabled={!this.state.isSwiping}>
                             <List>
                                 {this.state.bothArray.map((item, index) =>{
-                                    if(!item.isExpense){
+                                    if(!item.data().isExpense){
                                         var color = "#2fc547";
                                     }
                                     else{
                                         var color = 'red';
                                     }
                                     return(
-                                        <ListItem key={index}>
-                                            <View style={{flexDirection: 'row', width: '100%'}}>
-                                                <View style={{alignItems: 'flex-start', width: '50%'}}>
-                                                        <Text style={{fontWeight: 'bold'}}>
-                                                            {item.name}:
-                                                        </Text>
+                                        <View style={{flexDirection: 'row', width: '100%'}} key={index}>
+                                            <ListItem>
+                                                <View style={{width: '50%'}}>
+                                                    <Text>{item.data().name}</Text>
                                                 </View>
-                                                <View style={{alignItems: 'flex-end', width: '50%'}}>
-                                                        <Text style={{color: color, fontWeight: 'bold'}}>
-                                                            ${item.amount}
-                                                        </Text>
-                                                </View>
-                                            </View>
-                                        </ListItem>
+                                                <SwipeRow ref={(ref) => {this.openRowRefs[index] = ref}} preview={true} previewOpenValue={55} leftOpenValue={55} disableLeftSwipe={true} stopLeftSwipe={75} style={{width: '50%', height: 50}}>
+                                                    <View style={slideStyles.standaloneRowBack}>
+                                                        <Feather name="trash-2" size={24} color="red" style={{left: 10}} onPress={()=>{
+                                                            this.deleteDoc(item, index);
+                                                        }}/>
+                                                    </View>
+                                                    <View style={slideStyles.standaloneRowFront}>
+                                                        <Text style={{color: color, fontWeight: 'bold'}}>${item.data().amount}</Text>
+                                                    </View>
+                                                </SwipeRow>
+                                            </ListItem>
+                                        </View>
                                     )
                                 })}
                             </List>
@@ -288,11 +334,25 @@ export class BudgetOverview extends Component {
                         <AddButton action={this.showModal.bind(this)} colorPick="green"/>
                     </View>
                 </View>
-                
-                
             </Container>
         )
     }
 }
+
+const slideStyles = StyleSheet.create({
+    standaloneRowFront: {
+        alignItems: 'center',
+        backgroundColor: '#dcdcdc',
+        justifyContent: 'center',
+        height: 50,
+    },
+    standaloneRowBack: {
+        alignItems: 'center',
+        backgroundColor: '#dcdcdc',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+});
 
 export default BudgetOverview

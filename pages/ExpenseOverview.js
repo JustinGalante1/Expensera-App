@@ -71,9 +71,6 @@ export class ExpenseOverview extends Component {
                     totalExpense = parseFloat(totalExpense).toFixed(2);
                     currentComponent.setState({expenseSum: totalExpense});
                 })
-                .catch((error)=>{
-                    console.log(error);
-                });
             } else {
                 // No user is signed in.
             }
