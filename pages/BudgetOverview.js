@@ -181,7 +181,7 @@ export class BudgetOverview extends Component {
     }
 
     closeAllOpenRows(index){
-        allEmpty = true;
+        let allEmpty = true;
         for(var x=0;x<this.openRowRefs.length;x++){
             if(this.openRowRefs[x]){
                 allEmpty = false;
