@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {StyleSheet, Dimensions} from 'react-native'
+import {StyleSheet, Dimensions, ImageBackground} from 'react-native'
 
 //native base
 import {Card, Container, Button, Text, CardItem, View, List, ListItem} from 'native-base';
@@ -22,7 +22,7 @@ export class ExpenseOverview extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            month: "January",
+            month: new Date().toLocaleString('default', {month: 'long'}),
             expenseSum: 0,
             incomeSum: 0,
             budget: 0,
@@ -33,6 +33,7 @@ export class ExpenseOverview extends Component {
             bothArray: [],
             modal: false
         }
+        this.expenseListener;
     }
 
     updateArray = () =>{
@@ -47,15 +48,14 @@ export class ExpenseOverview extends Component {
         })
     }
 
-    componentDidMount(){
+    changeInfo(){
+        if(this.expenseListener != undefined){
+            this.expenseListener();
+        }
         let currentComponent = this;
-        const d = new Date();
-        const month = d.toLocaleString('default', {month: 'long'});
-        this.setState({month: month});
-
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", month).onSnapshot((querySnapshot)=>{
+                currentComponent.expenseListener = firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", currentComponent.state.month).onSnapshot((querySnapshot)=>{
                     let tempArray = [];
                     let totalExpense = 0;
                     querySnapshot.forEach((doc) => {
@@ -80,6 +80,16 @@ export class ExpenseOverview extends Component {
         });
     }
 
+    componentDidMount(){
+        this.changeInfo();
+    }
+
+    componentDidUpdate = (prevProps, prevState) => {
+        if(prevState.month !== this.state.month){
+            this.changeInfo();
+        }
+    }
+    
     showModal(){
         console.log("showing modal");
         this.setState({modal: true});
@@ -88,6 +98,11 @@ export class ExpenseOverview extends Component {
     hideModal(){
         console.log("hiding modal");
         this.setState({modal: false});
+    }
+
+    setMonth(newMonth){
+        this.setState({month: newMonth});
+        //this.displayInfo();
     }
 
     render() {
@@ -99,29 +114,31 @@ export class ExpenseOverview extends Component {
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}/>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
                     <View style={{flex: 1}}>
-                        <Header navigation = {navigation}/>
+                        <Header navigation = {navigation} setMonth={this.setMonth.bind(this)}/>
                     </View>
-                    <View style={[styles.centerContainer], {flex: 2.5}}>
+                    <View style={[styles.centerContainer], {flex: 2.2}}>
                         <View style={{alignItems:'center',justifyContent:'center'}}>
-                            <Card style={{width: windowWidth-20, alignItems: 'center', borderRadius: 20, backgroundColor: 'white', shadowColor: '#000', shadowOpacity: 0.5, shadowOffset: {width: 0, height: 6.0}, shadowRadius: 1,}}>
-                                <CardItem header style={styles.cardHeader}>
-                                </CardItem>
-                                <CardItem>
-                                    <Text>
-                                        You've Spent:
-                                    </Text>
-                                </CardItem>
-                                <CardItem>
-                                    <Text style={{color: '#FF0000'}}>
-                                        ${this.state.expenseSum * -1}
-                                    </Text>
-                                </CardItem>
-                                <CardItem>
-                                    <Text>
-                                        This Month
-                                    </Text>
-                                </CardItem>
-                                <CardItem footer style = {styles.cardFooter}/>
+                            <Card style={{width: windowWidth-20, backgroundColor: '#RRGGBBFF', alignItems: 'center', borderRadius: 20, shadowColor: '#000', shadowOpacity: 0.5, shadowOffset: {width: 0, height: 6.0}, shadowRadius: 1,}}>
+                                <ImageBackground source={require('../assets/down.png')} style={{alignItems: 'center', overflow: 'hidden', width: "100%", borderRadius: 20}}>    
+                                    <CardItem header style={styles.cardHeader, {backgroundColor: '#RRGGBBFF'}}>
+                                    </CardItem>
+                                    <CardItem style = {{backgroundColor: '#RRGGBBFF'}}>
+                                        <Text style = {{fontSize: "30%", fontWeight: 'bold', backgroundColor: '#RRGGBBFF'}}>
+                                            You've Spent:
+                                        </Text>
+                                    </CardItem>
+                                    <CardItem style = {{backgroundColor: '#RRGGBBFF'}}>
+                                        <Text style={{color: '#FF0000', fontSize: "40%", fontWeight: 'bold', backgroundColor: '#RRGGBBFF'}}>
+                                            ${this.state.expenseSum * -1}
+                                        </Text>
+                                    </CardItem>
+                                    <CardItem style = {{backgroundColor: '#RRGGBBFF'}}>
+                                        <Text style = {{fontSize: "30%", fontWeight: 'bold', backgroundColor: '#RRGGBBFF'}}>
+                                            This Month
+                                        </Text>
+                                    </CardItem>
+                                    <CardItem footer style = {styles.cardFooter, {backgroundColor: '#RRGGBBFF'}}/>
+                                </ImageBackground>
                             </Card>
                         </View> 
                         <MyModal visible={this.state.modal} action={this.hideModal.bind(this)}/>
@@ -159,10 +176,7 @@ export class ExpenseOverview extends Component {
                         <AddButton action={this.showModal.bind(this)} colorPick="green"/>
                     </View>
                 </View>
-                
-                
             </Container>
-            
         )
     }
 }
