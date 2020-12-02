@@ -13,6 +13,10 @@ import Header from '../components/Header';
 import AddButton from '../components/AddButton';
 import BudgetModal from '../components/BudgetModal';
 
+import { SwipeRow } from 'react-native-swipe-list-view';
+
+import { Feather } from '@expo/vector-icons'; 
+
 //styles
 import {PageStyle} from '../styles';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -22,7 +26,7 @@ export class BudgetOverview extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            month: "January",
+            month: new Date().toLocaleString('default', {month: 'long'}),
             expenseSum: 0,
             incomeSum: 0,
             budget: 0,
@@ -32,13 +36,19 @@ export class BudgetOverview extends Component {
             incomeArray: [],
             bothArray: [],
         }
+        this.incomeListener;
+        this.expenseListener;
+        this.budgetListener;
+        this.openRowRefs=[];
+
+        this.rowRef = React.createRef();
     }
 
     updateArray = () =>{
         let currentComponent = this;
         let tempArray2 = currentComponent.state.expenseArray.concat(currentComponent.state.incomeArray);
         tempArray2.sort(function(a, b){
-            return (b.name.localeCompare(a.name));
+            return (b.data().name.localeCompare(a.data().name));
         })
 
         currentComponent.setState({
@@ -46,20 +56,31 @@ export class BudgetOverview extends Component {
         })
     }
 
-    componentDidMount(){
-        const d = new Date();
-        const month = d.toLocaleString('default', {month: 'long'});
-        this.setState({month: month});
-        let currentComponent = this;
+    changeInfo(){
+        if(this.budgetListener != undefined){
+            console.log("removing old budget listener");
+            this.budgetListener();
+        }
 
+        if(this.expenseListener != undefined){
+            console.log("removing old expense listener");
+            this.expenseListener();
+        }
+
+        if(this.incomeListener != undefined){
+            console.log("removing old income listener");
+            this.incomeListener();
+        }
+
+        let currentComponent = this;
         firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {                
-                firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", month).onSnapshot((querySnapshot)=>{
+            if (user) {        
+                currentComponent.expenseListener = firebase.firestore().collection(`/users/${user.email}/expenses`).where("month", "==", currentComponent.state.month).onSnapshot((querySnapshot)=>{
                     let totalExpense = 0;
                     let tempArray = [];
                     querySnapshot.forEach((doc) => {
                         totalExpense += parseFloat(doc.data().amount);
-                        tempArray.push(doc.data());
+                        tempArray.push(doc);
                     });
                     currentComponent.setState({
                         expenseArray: tempArray,
@@ -71,7 +92,6 @@ export class BudgetOverview extends Component {
                     currentComponent.updateArray();
 
                     if(parseFloat(currentComponent.state.budget) > 0){
-                        console.log("hi");
                         currentComponent.setState({
                             percent: (100*(currentComponent.state.expenseSum - currentComponent.state.incomeSum)/(currentComponent.state.budget)).toFixed(2)
                         })
@@ -83,12 +103,12 @@ export class BudgetOverview extends Component {
                     }
                 });
 
-                firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", month).onSnapshot((querySnapshot)=>{
+                currentComponent.incomeListener = firebase.firestore().collection(`/users/${user.email}/incomes`).where("month", "==", currentComponent.state.month).onSnapshot((querySnapshot)=>{
                     let totalIncome = 0;
                     let tempArray = [];
                     querySnapshot.forEach((doc) => {
                         totalIncome += parseFloat(doc.data().amount);
-                        tempArray.push(doc.data());
+                        tempArray.push(doc);
                     });
                     currentComponent.setState({
                         incomeArray: tempArray
@@ -112,7 +132,7 @@ export class BudgetOverview extends Component {
                 });
                 
 
-                firebase.firestore().doc(`/users/${user.email}/budgets/${month}`).onSnapshot((doc) => {
+                currentComponent.budgetListener = firebase.firestore().doc(`/users/${user.email}/budgets/${currentComponent.state.month}`).onSnapshot((doc) => {
                     if(!doc.exists){
                         currentComponent.setState({budget: 'No Budget'});
                         currentComponent.setState({percent: 'N/A'});
@@ -132,8 +152,19 @@ export class BudgetOverview extends Component {
                 // No user is signed in.
             }
         });
+
     }
 
+    componentDidMount(){
+        this.changeInfo();
+    }
+
+    componentDidUpdate = (prevProps, prevState) => {
+        if(prevState.month !== this.state.month){
+            this.changeInfo();
+        }
+    }
+    
     showModal(){
         console.log("showing modal");
         this.setState({modal: true});
@@ -142,6 +173,48 @@ export class BudgetOverview extends Component {
     hideModal(){
         console.log("hiding modal");
         this.setState({modal: false});
+    }
+
+    setMonth(newMonth){
+        this.setState({month: newMonth});
+        //this.displayInfo();
+    }
+
+    closeAllOpenRows(index){
+        allEmpty = true;
+        for(var x=0;x<this.openRowRefs.length;x++){
+            if(this.openRowRefs[x]){
+                allEmpty = false;
+            }
+            this.openRowRefs[x] && this.openRowRefs[x].closeRow();
+        }
+        if(allEmpty){
+            this.openRowRefs = [];
+        }
+    }
+
+    deleteDoc(item, index){
+        this.closeAllOpenRows(index);
+        firebase.auth().onAuthStateChanged(function(user) {
+            if(user){
+                if(item.data().isExpense){
+                    firebase.firestore().collection(`/users/${user.email}/expenses`).doc(item.id).delete().then(()=>{
+                        console.log("successfully deleted expense");
+                    })
+                    .catch((error) =>{
+                        console.log("problem while deleting expense");
+                    });
+                }
+                else{
+                    firebase.firestore().collection(`/users/${user.email}/incomes`).doc(item.id).delete().then(()=>{
+                        console.log("successfully deleted income");
+                    })
+                    .catch((error) => {
+                        console.log("problem while deleting income");
+                    })
+                }
+            }
+        });
     }
 
     render() {
@@ -174,7 +247,7 @@ export class BudgetOverview extends Component {
                 <SafeAreaView style={{flex: 0, backgroundColor: '#4a4a4a'}}/>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#2fc547'}}>
                     <View style={{flex: 1}}>
-                        <Header navigation = {navigation}/>
+                        <Header navigation = {navigation} setMonth={this.setMonth.bind(this)}/>
                     </View>
                     <View style={[styles.centerContainer], {flex: 2.5}}>
                         <View style={{alignItems:'center',justifyContent:'center'}}>
@@ -225,30 +298,33 @@ export class BudgetOverview extends Component {
                     <View style={{flexDirection: 'row', height: '100%', backgroundColor: 'red'}}>
                         <View style={{position: 'absolute', left: 0, backgroundColor: 'white', width: '50%', height: '100%'}}/>
                         <View style={{position: 'absolute', right: 0, backgroundColor: '#dcdcdc', width: '50%', height: '100%'}}/>
-                        <ScrollView style={{width: '100%', backgroundColor: 'transparent'}}>
+                        <ScrollView style={{width: '100%', backgroundColor: 'transparent'}} scrollEnabled={!this.state.isSwiping}>
                             <List>
                                 {this.state.bothArray.map((item, index) =>{
-                                    if(!item.isExpense){
+                                    if(!item.data().isExpense){
                                         var color = "#2fc547";
                                     }
                                     else{
                                         var color = 'red';
                                     }
                                     return(
-                                        <ListItem key={index}>
-                                            <View style={{flexDirection: 'row', width: '100%'}}>
-                                                <View style={{alignItems: 'flex-start', width: '50%'}}>
-                                                        <Text style={{fontWeight: 'bold'}}>
-                                                            {item.name}:
-                                                        </Text>
+                                        <View style={{flexDirection: 'row', width: '100%'}} key={index}>
+                                            <ListItem>
+                                                <View style={{width: '50%'}}>
+                                                    <Text>{item.data().name}</Text>
                                                 </View>
-                                                <View style={{alignItems: 'flex-end', width: '50%'}}>
-                                                        <Text style={{color: color, fontWeight: 'bold'}}>
-                                                            ${item.amount}
-                                                        </Text>
-                                                </View>
-                                            </View>
-                                        </ListItem>
+                                                <SwipeRow ref={(ref) => {this.openRowRefs[index] = ref}} preview={true} previewOpenValue={55} leftOpenValue={55} disableLeftSwipe={true} stopLeftSwipe={75} style={{width: '50%', height: 50}}>
+                                                    <View style={slideStyles.standaloneRowBack}>
+                                                        <Feather name="trash-2" size={24} color="red" style={{left: 10}} onPress={()=>{
+                                                            this.deleteDoc(item, index);
+                                                        }}/>
+                                                    </View>
+                                                    <View style={slideStyles.standaloneRowFront}>
+                                                        <Text style={{color: color, fontWeight: 'bold'}}>${item.data().amount}</Text>
+                                                    </View>
+                                                </SwipeRow>
+                                            </ListItem>
+                                        </View>
                                     )
                                 })}
                             </List>
@@ -258,11 +334,25 @@ export class BudgetOverview extends Component {
                         <AddButton action={this.showModal.bind(this)} colorPick="green"/>
                     </View>
                 </View>
-                
-                
             </Container>
         )
     }
 }
+
+const slideStyles = StyleSheet.create({
+    standaloneRowFront: {
+        alignItems: 'center',
+        backgroundColor: '#dcdcdc',
+        justifyContent: 'center',
+        height: 50,
+    },
+    standaloneRowBack: {
+        alignItems: 'center',
+        backgroundColor: '#dcdcdc',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+});
 
 export default BudgetOverview
